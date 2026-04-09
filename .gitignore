@@ -1,0 +1,14 @@
+# Compiled binaries
+*.exe
+*.out
+*.o
+
+# VS Code
+.vscode/
+
+# Outlines
+ASSIGNMENT.md
+learned.md
+
+# Debug symbols
+*.pdb
