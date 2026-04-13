@@ -11,9 +11,7 @@ struct cache_config{
   int block_size{};
   int associativity{};
   WriteHitPolicy write_hit{};
-  WriteMissPolicy write_miss{};
-
-  
+  WriteMissPolicy write_miss{};  
 };
 
 #endif
