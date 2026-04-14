@@ -24,10 +24,11 @@ int main(int argc, char* argv[]){
   // build cache based on cache config
   if (fileStream.is_open()){
     getline(fileStream, configString, '\n');
+    cout << configString << endl;
 
 
   }else{
-    cout << "Input file not found. Please check input file name" << endl;
+    cout << "Input file not found. Please check input file name: " << getFilePath(argv[1]) << endl;
     return 0;
   }
 }

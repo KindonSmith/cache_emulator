@@ -12,7 +12,7 @@ cache_config getCacheConfig(istream &file){
 }
 
 string getFilePath(char* inputFileName){
-  return "src/input/" + (string)inputFileName;
+  return "input/" + (string)inputFileName;
 }
 
 
