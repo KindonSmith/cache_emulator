@@ -1,6 +1,7 @@
 #ifndef Cache_H
 #define Cache_H
 #include "cache_set.h"
+#include "cache_config.h"
 #include <vector>
 #include <cmath>
 
@@ -32,6 +33,24 @@ struct Cache{
     }
     while (blockSize > 1){
       blockSize >>= 1;
+      offsetBits++;
+    }
+    while (numSets > 1){
+      numSets >>= 1;
+      indexBits++;
+    }
+    tagBits = 32u - indexBits - offsetBits;
+  }
+  Cache(cache_config config)
+        : cache_size(config.cache_size), block_size(config.block_size), associativity(config.associativity)
+  {
+    cache_set set(config.associativity);
+    int numSets = config.cache_size / config.block_size / config.associativity;
+    for(int i = 0; i < numSets; i++){
+      sets.push_back(set);
+    }
+    while (config.block_size > 1){
+      config.block_size >>= 1;
       offsetBits++;
     }
     while (numSets > 1){

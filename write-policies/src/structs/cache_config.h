@@ -11,7 +11,11 @@ struct cache_config{
   int block_size{};
   int associativity{};
   WriteHitPolicy write_hit{};
-  WriteMissPolicy write_miss{};  
+  WriteMissPolicy write_miss{};
+
+  cache_config(){};
+  cache_config(int cacheSize, int blockSize, int assoc, WriteHitPolicy writeHit, WriteMissPolicy writeMiss) : cache_size(cacheSize),
+              block_size(blockSize), associativity(assoc), write_hit(writeHit), write_miss(writeMiss){};
 };
 
 #endif

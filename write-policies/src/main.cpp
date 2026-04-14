@@ -15,9 +15,17 @@ int main(int argc, char* argv[]){
   }
 
   ifstream fileStream(getFilePath(argv[1]));
-  string config{};
+  string configString{};
+  cache_config configData{};
+  // open file
+  // get 1st line cache config
+  // convert 1st line into config data
+  // construct cache config
+  // build cache based on cache config
   if (fileStream.is_open()){
-    getline(fileStream, config, '\n');
+    getline(fileStream, configString, '\n');
+
+
   }else{
     cout << "Input file not found. Please check input file name" << endl;
     return 0;
