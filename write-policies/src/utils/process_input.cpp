@@ -38,9 +38,6 @@ cache_config buildCacheConfig(vector<string> configArray){
   return cache_config(cacheSize, blockSize, associativity, writeHit, writeMiss);
 }
 
-Cache buildCache(cache_config config){
-  
-}
 
 Cache generateCache(string configString){
   stringstream ss(configString);
@@ -49,8 +46,9 @@ Cache generateCache(string configString){
   while (ss >> token) {
     delimitedConfig.push_back(token);
   }
-  
 
+  return Cache(buildCacheConfig(delimitedConfig));
+  
 }
 
 string getFilePath(char* inputFileName){
