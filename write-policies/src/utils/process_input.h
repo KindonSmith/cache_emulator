@@ -12,6 +12,16 @@
 
 using namespace std;
 
+bool validateNumberOfInstructions(int numInstructions){
+  if (numInstructions == 2) return true;
+  return false;
+}
+bool validateInstructionReadWrite(string readWrite){
+  if (readWrite == "W" || readWrite == "R" || readWrite == "w" || readWrite == "r"){
+    return true;
+  }
+  return false;
+}
 
 cache_config buildCacheConfig(vector<string> configArray){
   if(configArray.size() != 5){
@@ -75,17 +85,10 @@ int processAddress(string addressWithPolicy){
     return 0;
   }
 
+  return 1;
+
 }
 
-bool validateNumberOfInstructions(int numInstructions){
-  if (numInstructions == 2) return true;
-  return false;
-}
-bool validateInstructionReadWrite(string readWrite){
-  if (readWrite == "W" || readWrite == "R" || readWrite == "w" || readWrite == "r"){
-    return true;
-  }
-  return false;
-}
+
 
 #endif
