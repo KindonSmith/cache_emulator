@@ -68,7 +68,7 @@ string getFilePath(char* inputFileName){
   return "input/" + (string)inputFileName;
 }
 
-int processAddressWithPolicy(string addressWithPolicy){
+int processAddressWithPolicy(string addressWithPolicy, Cache &cache){
   stringstream ss(addressWithPolicy);
   vector<string> instructions{};
   string token{};
@@ -91,11 +91,11 @@ int processAddressWithPolicy(string addressWithPolicy){
 
 }
 
-int checkInstructionList(ifstream &fileStream){
+int checkInstructionList(ifstream &fileStream, Cache &cache){
   string addressWithPolicy{};
   if (fileStream.is_open()){
     while(getline(fileStream, addressWithPolicy)){
-      processAddressWithPolicy(addressWithPolicy);
+      processAddressWithPolicy(addressWithPolicy, cache);
     }
   }
   return 1;
