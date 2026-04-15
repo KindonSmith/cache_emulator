@@ -1,3 +1,6 @@
+#ifndef Process_Input_H
+#define Process_Input_H
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -33,7 +36,7 @@ cache_config buildCacheConfig(vector<string> configArray){
   }else if(configArray[4] == "nwa" || configArray[4] == "NWA"){
     writeMiss = WriteMissPolicy::NO_WRITE_ALLOCATE;
   }else {
-    throw runtime_error("Invalid Write Hit policy. Please confirm write policy is the 4th config argument and follows all upper case or all lower-case format. Acceptable arguments: wb | WB | wt | WT");
+    throw runtime_error("Invalid Write Miss policy. Please confirm miss policy is the 5th config argument and follows all upper case or all lower-case format. Acceptable arguments: wa | WA | nwa | NWA");
   }
   return cache_config(cacheSize, blockSize, associativity, writeHit, writeMiss);
 }
@@ -56,3 +59,4 @@ string getFilePath(char* inputFileName){
 }
 
 
+#endif

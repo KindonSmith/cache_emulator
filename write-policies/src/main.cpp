@@ -1,5 +1,5 @@
 using namespace std;
-#include "utils/process_input.cpp"
+#include "utils/process_input.h"
 #include "structs/cache_config.h"
 #include <iostream>
 #include <fstream>
