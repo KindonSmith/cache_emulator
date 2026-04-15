@@ -4,12 +4,18 @@
 #include "cache_config.h"
 #include <vector>
 #include <cmath>
+#include <string>
+#include <iostream>
+
+using namespace std;
 
 struct Cache{
   std::vector<cache_set> sets{};
   int cache_size{};
   int block_size{};
   int associativity{};
+  WriteHitPolicy write_hit;
+  WriteMissPolicy write_miss;
   
   uint32_t offsetBits{};
   uint32_t indexBits{};
@@ -42,7 +48,8 @@ struct Cache{
     tagBits = 32u - indexBits - offsetBits;
   }
   Cache(cache_config config)
-        : cache_size(config.cache_size), block_size(config.block_size), associativity(config.associativity)
+        : cache_size(config.cache_size), block_size(config.block_size), associativity(config.associativity),
+        write_hit(config.write_hit), write_miss(config.write_miss)
   {
     cache_set set(config.associativity);
     int numSets = config.cache_size / config.block_size / config.associativity;
@@ -118,6 +125,27 @@ struct Cache{
     sets[index].updateLRU(lruMaxIndex);
 
     return 0;
+  }
+  /**
+   * @brief 
+   * Cache size:      1024 bytes
+   * Block size:      32 bytes
+   * Associativity:   4 ways
+   * Number of sets:  8
+   * Write hit:       write-back
+   * Write miss:      write-allocate
+   * 
+   */
+  void print() {
+    string w = "  ";
+    cout << "Cache Configuration:" << endl;
+    cout << w << "Cache size: " << w << cache_size << "bytes" << endl;
+    cout << w << "Block sze: " << w << block_size << "bytes" << endl;
+    cout << w << "Associativity: " << w << associativity << "ways" << endl;
+    cout << w << "Number of sets: " << w << sets.size() << endl;
+    cout << w << "Write hit: " << w << (write_hit == WriteHitPolicy::WRITE_BACK ? "write-back" : "write-throu") << endl;
+    cout << w << "Write miss: " << w << (write_miss == WriteMissPolicy::WRITE_ALLOCATE ? "write-allocate" : "no-write-allocate") << endl;
+
   }
 };
 

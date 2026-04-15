@@ -25,10 +25,10 @@ int main(int argc, char* argv[]){
   if (fileStream.is_open()){
     // pull config first line into string
     // delimit parse into string array
-    // initialize config
+    // initialize cache with cache_config generated from string array
     getline(fileStream, configString, '\n');
     Cache myCache = generateCache(configString);
-    cout << myCache.block_size << endl;
+    
     
   }else{
     cout << "Input file not found. Please check input file name: " << getFilePath(argv[1]) << endl;

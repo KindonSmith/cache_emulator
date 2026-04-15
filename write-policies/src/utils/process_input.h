@@ -58,5 +58,18 @@ string getFilePath(char* inputFileName){
   return "input/" + (string)inputFileName;
 }
 
+int processAddress(string addressWithPolicy){
+  stringstream ss(addressWithPolicy);
+  vector<string> instructions{};
+  string token{};
 
+  while (ss >> token) {
+    instructions.push_back(token);
+    if (instructions.size() > 2){
+      // malformed line
+      cout << "Found bad instruction." << endl;
+      return 0;
+    }
+  }
+}
 #endif
