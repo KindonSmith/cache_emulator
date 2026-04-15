@@ -68,10 +68,11 @@ string getFilePath(char* inputFileName){
   return "input/" + (string)inputFileName;
 }
 
-int processAddress(string addressWithPolicy){
+int processAddressWithPolicy(string addressWithPolicy){
   stringstream ss(addressWithPolicy);
   vector<string> instructions{};
   string token{};
+  uint32_t address{};
 
   while (ss >> token) {
     instructions.push_back(token);
@@ -84,10 +85,23 @@ int processAddress(string addressWithPolicy){
     // missing one or both pieces of the instruction
     return 0;
   }
+  address = stoi(instructions[1], 0, 16);
 
   return 1;
 
 }
+
+int checkInstructionList(ifstream &fileStream){
+  string addressWithPolicy{};
+  if (fileStream.is_open()){
+    while(getline(fileStream, addressWithPolicy)){
+      processAddressWithPolicy(addressWithPolicy);
+    }
+  }
+  return 1;
+}
+
+
 
 
 

@@ -145,7 +145,6 @@ struct Cache{
     cout << w << "Number of sets: " << w << sets.size() << endl;
     cout << w << "Write hit: " << w << (write_hit == WriteHitPolicy::WRITE_BACK ? "write-back" : "write-throu") << endl;
     cout << w << "Write miss: " << w << (write_miss == WriteMissPolicy::WRITE_ALLOCATE ? "write-allocate" : "no-write-allocate") << endl;
-
   }
 };
 
