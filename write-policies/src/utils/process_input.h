@@ -65,11 +65,27 @@ int processAddress(string addressWithPolicy){
 
   while (ss >> token) {
     instructions.push_back(token);
-    if (instructions.size() > 2){
-      // malformed line
-      cout << "Found bad instruction." << endl;
-      return 0;
-    }
   }
+  if(!validateInstructionReadWrite(instructions[0])){
+    // bad read/write
+    return 0;
+  }
+  if(!validateNumberOfInstructions(instructions.size())){
+    // missing one or both pieces of the instruction
+    return 0;
+  }
+
 }
+
+bool validateNumberOfInstructions(int numInstructions){
+  if (numInstructions == 2) return true;
+  return false;
+}
+bool validateInstructionReadWrite(string readWrite){
+  if (readWrite == "W" || readWrite == "R" || readWrite == "w" || readWrite == "r"){
+    return true;
+  }
+  return false;
+}
+
 #endif
