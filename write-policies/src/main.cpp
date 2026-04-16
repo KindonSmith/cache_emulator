@@ -28,7 +28,7 @@ int main(int argc, char* argv[]){
     // initialize cache with cache_config generated from string array
     getline(fileStream, configString, '\n');
     Cache myCache = generateCache(configString);
-    int test = checkInstructionList(fileStream, myCache);    
+    checkInstructionList(fileStream, myCache);    
   }else{
     cout << "Input file not found. Please check input file name: " << getFilePath(argv[1]) << endl;
     return 0;

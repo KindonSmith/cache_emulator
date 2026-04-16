@@ -71,7 +71,7 @@ string getFilePath(char* inputFileName){
   return "input/" + (string)inputFileName;
 }
 
-int processAddressWithPolicy(string addressWithPolicy, Cache &cache){
+void processAddressWithPolicy(string addressWithPolicy, Cache &cache){
   stringstream ss(addressWithPolicy);
   vector<string> instructions{};
   string token{};
@@ -82,26 +82,22 @@ int processAddressWithPolicy(string addressWithPolicy, Cache &cache){
   }
   if(!validateInstructionReadWrite(instructions[0])){
     // bad read/write
-    return 0;
+    return;
   }
   if(!validateNumberOfInstructions(instructions.size())){
     // missing one or both pieces of the instruction
-    return 0;
+    return;
   }
   address = stoi(instructions[1], 0, 16);
-
-  return 1;
-
 }
 
-int checkInstructionList(ifstream &fileStream, Cache &cache){
+void checkInstructionList(ifstream &fileStream, Cache &cache){
   string addressWithPolicy{};
   if (fileStream.is_open()){
     while(getline(fileStream, addressWithPolicy)){
       processAddressWithPolicy(addressWithPolicy, cache);
     }
   }
-  return 1;
 }
 
 
