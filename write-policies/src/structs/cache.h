@@ -2,6 +2,7 @@
 #define Cache_H
 #include "cache_set.h"
 #include "cache_config.h"
+#include "stats.h"
 #include <vector>
 #include <cmath>
 #include <string>
@@ -16,6 +17,7 @@ struct Cache{
   int associativity{};
   WriteHitPolicy write_hit;
   WriteMissPolicy write_miss;
+  Stats stats{};
   
   uint32_t offsetBits{};
   uint32_t indexBits{};
