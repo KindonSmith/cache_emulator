@@ -108,6 +108,10 @@ struct Cache{
     for(int wayIndex = 0; wayIndex < associativity; wayIndex++){
       if(sets[index].ways[wayIndex].valid){
         if (sets[index].ways[wayIndex].tag == tag){
+          if(sets[index].ways[wayIndex].dirty) {
+              stats.writes_to_next_level++;
+              stats.writebacks++;
+          }
           sets[index].updateLRU(wayIndex);
           return 1;
         }
