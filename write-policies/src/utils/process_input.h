@@ -49,7 +49,7 @@ cache_config buildCacheConfig(vector<string> configArray){
     throw runtime_error("Invalid Write Miss policy. Please confirm miss policy is the 5th config argument and follows all upper case or all lower-case format. Acceptable arguments: wa | WA | nwa | NWA");
   }
   if (writeHit == WriteHitPolicy::WRITE_BACK && writeMiss == WriteMissPolicy::NO_WRITE_ALLOCATE){
-    throw runtime_error("Invalid configuration. Cannot support write-back hit policy with no-write-allocate miss policy");
+    throw runtime_error("Invalid configuration. Cannot support write-back hit policy with no-write-allocate miss policy. WB with NWA is not supported.");
   }
   return cache_config(cacheSize, blockSize, associativity, writeHit, writeMiss);
 }

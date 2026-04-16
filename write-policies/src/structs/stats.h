@@ -2,7 +2,7 @@
 #define Stats_H
 
 
-struct stats{
+struct Stats{
   int total_accesses{};
   int reads{};
   int writes{};

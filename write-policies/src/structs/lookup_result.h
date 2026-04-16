@@ -3,7 +3,8 @@
 
 
 struct lookup_result{
-  
+  bool hit;
+  bool writeback_occurred;
 };
 
 
