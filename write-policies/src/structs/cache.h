@@ -94,6 +94,36 @@ struct Cache{
     return address >> indexBits + offsetBits;
   }
 
+  bool matchingTags(uint32_t tag1, uint32_t tag2){
+    return tag1 == tag2;
+  }
+
+  void updateBlocks(uint32_t index, uint32_t wayIndex){
+    if(sets[index].ways[wayIndex].dirty) {
+      stats.writes_to_next_level++;
+      stats.writebacks++;
+    }
+    sets[index].updateLRU(wayIndex);    
+  }
+
+  void wa_miss(cache_block &block){
+    block.dirty = true;
+    stats.misses++;
+    stats.writes++;
+  }
+  void nwa_miss(cache_block &block){
+
+  }
+
+  void instruction_miss(cache_block &block, uint32_t tag, string directive){
+    block.valid = true;
+    block.tag = tag;
+    if(directive == "W"){
+      if(write_miss == WriteMissPolicy::WRITE_ALLOCATE) wa_miss(block);
+      if(write_miss == WriteMissPolicy::NO_WRITE_ALLOCATE) nwa_miss(block);
+    }
+  }
+
   /**
    * @brief Given an address, return 1 on hit, 0 on miss, and update LRU
    * for a set's instructions.
@@ -101,18 +131,14 @@ struct Cache{
    * @param address 
    * @return int 
    */
-  int lookUp(uint32_t address){
+  int lookUp(uint32_t address, string directive){
     int lruMaxIndex{};
     uint32_t index = getIndex(address);
     uint32_t tag = getTag(address);
     for(int wayIndex = 0; wayIndex < associativity; wayIndex++){
       if(sets[index].ways[wayIndex].valid){
-        if (sets[index].ways[wayIndex].tag == tag){
-          if(sets[index].ways[wayIndex].dirty) {
-              stats.writes_to_next_level++;
-              stats.writebacks++;
-          }
-          sets[index].updateLRU(wayIndex);
+        if (matchingTags(sets[index].ways[wayIndex].tag, tag)){
+          updateBlocks(index, wayIndex);
           return 1;
         }
       }
@@ -126,9 +152,9 @@ struct Cache{
 
     // if we reach here, we've checked all necessary ways and can write
     // we've also missed, so we return 0
-    sets[index].ways[lruMaxIndex].valid = true;
-    sets[index].ways[lruMaxIndex].tag = tag;
+    instruction_miss(sets[index].ways[lruMaxIndex], tag, directive);
     sets[index].updateLRU(lruMaxIndex);
+
 
     return 0;
   }

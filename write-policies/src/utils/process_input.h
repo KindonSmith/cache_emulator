@@ -17,7 +17,7 @@ bool validateNumberOfInstructions(int numInstructions){
   return false;
 }
 bool validateInstructionReadWrite(string readWrite){
-  if (readWrite == "W" || readWrite == "R" || readWrite == "w" || readWrite == "r"){
+  if (readWrite == "W" || readWrite == "R"){
     return true;
   }
   return false;
