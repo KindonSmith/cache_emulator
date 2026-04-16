@@ -7,6 +7,7 @@
 #include <cmath>
 #include <string>
 #include <iostream>
+#include <iomanip>
 
 using namespace std;
 
@@ -98,30 +99,60 @@ struct Cache{
     return tag1 == tag2;
   }
 
-  void updateBlocks(uint32_t index, uint32_t wayIndex){
-    if(sets[index].ways[wayIndex].dirty) {
+  void updateBlock(cache_block &block){
+    if(block.dirty) {
       stats.writes_to_next_level++;
       stats.writebacks++;
+      block.dirty = false;
     }
-    sets[index].updateLRU(wayIndex);    
   }
 
-  void wa_miss(cache_block &block){
-    block.dirty = true;
-    stats.misses++;
-    stats.writes++;
+  void loadBlock(cache_block &block, uint32_t tag){
+    block.valid = true;
+    block.tag = tag;
+    block.dirty = false;
+  }
+
+  void wa_miss(cache_block &block, uint32_t tag){
+    loadBlock(block, tag);
+    if(write_hit == WriteHitPolicy::WRITE_BACK) block.dirty = true;
   }
   void nwa_miss(cache_block &block){
-
+    stats.writes_to_next_level++;
   }
 
   void instruction_miss(cache_block &block, uint32_t tag, string directive){
-    block.valid = true;
-    block.tag = tag;
+    stats.misses++;
+    updateBlock(block);
+    
     if(directive == "W"){
-      if(write_miss == WriteMissPolicy::WRITE_ALLOCATE) wa_miss(block);
+      stats.writes++;
+      if(write_miss == WriteMissPolicy::WRITE_ALLOCATE) wa_miss(block, tag);
       if(write_miss == WriteMissPolicy::NO_WRITE_ALLOCATE) nwa_miss(block);
+    }else if(directive == "R"){
+      stats.reads++;
+      loadBlock(block, tag);
     }
+  }
+
+  void wb_hit(cache_block &block){
+    if (!block.dirty) block.dirty = true;
+  }
+
+  void wt_hit(){
+    stats.writes_to_next_level++;
+  }
+
+  void instruction_hit(cache_block &block, uint32_t tag, string directive){
+    stats.hits++;
+    if(directive == "W"){
+      stats.writes++;
+      if(write_hit == WriteHitPolicy::WRITE_BACK) wb_hit(block);
+      if(write_hit == WriteHitPolicy::WRITE_THROUGH) wt_hit();
+    }else if(directive == "R"){
+      stats.reads++;
+    }
+
   }
 
   /**
@@ -135,10 +166,15 @@ struct Cache{
     int lruMaxIndex{};
     uint32_t index = getIndex(address);
     uint32_t tag = getTag(address);
+
+    stats.total_accesses++;
+
     for(int wayIndex = 0; wayIndex < associativity; wayIndex++){
       if(sets[index].ways[wayIndex].valid){
         if (matchingTags(sets[index].ways[wayIndex].tag, tag)){
-          updateBlocks(index, wayIndex);
+          //updateBlocks(index, wayIndex);
+          instruction_hit(sets[index].ways[wayIndex], tag, directive);
+          sets[index].updateLRU(wayIndex);
           return 1;
         }
       }
@@ -168,15 +204,29 @@ struct Cache{
    * Write miss:      write-allocate
    * 
    */
-  void print() {
+  void printConfig() {
     string w = "  ";
-    cout << "Cache Configuration:" << endl;
-    cout << w << "Cache size: " << w << cache_size << "bytes" << endl;
-    cout << w << "Block sze: " << w << block_size << "bytes" << endl;
-    cout << w << "Associativity: " << w << associativity << "ways" << endl;
-    cout << w << "Number of sets: " << w << sets.size() << endl;
-    cout << w << "Write hit: " << w << (write_hit == WriteHitPolicy::WRITE_BACK ? "write-back" : "write-throu") << endl;
-    cout << w << "Write miss: " << w << (write_miss == WriteMissPolicy::WRITE_ALLOCATE ? "write-allocate" : "no-write-allocate") << endl;
+    cout << "Cache Configuration:            " << endl;
+    cout << w << "Cache size:                " << w << cache_size << "bytes" << endl;
+    cout << w << "Block sze:                 " << w << block_size << "bytes" << endl;
+    cout << w << "Associativity:             " << w << associativity << "ways" << endl;
+    cout << w << "Number of se               " << w << sets.size() << endl;
+    cout << w << "Write hit:                 " << w << (write_hit == WriteHitPolicy::WRITE_BACK ? "write-back" : "write-throu") << endl;
+    cout << w << "Write miss:                " << w << (write_miss == WriteMissPolicy::WRITE_ALLOCATE ? "write-allocate" : "no-write-allocate") << endl;
+  }
+
+  void printStats() {
+    string w = "  ";
+    float hitRate = stats.total_accesses > 0 ? (100.0f * stats.hits / stats.total_accesses) : 0.0f;
+    cout << "Results:" << endl;
+    cout << w << "Total accesses:       " << stats.total_accesses << endl;
+    cout << w << "Reads:                " << stats.reads << endl;
+    cout << w << "Writes:               " << stats.writes << endl;
+    cout << w << "Hits:                 " << stats.hits << endl;
+    cout << w << "Misses:               " << stats.misses << endl;
+    cout << w << "Hit rate:             " << fixed << setprecision(2) << hitRate << "%" << endl;
+    cout << w << "Writebacks:           " << stats.writebacks << endl;
+    cout << w << "Writes to next level: " << stats.writes_to_next_level << endl;
   }
 };
 

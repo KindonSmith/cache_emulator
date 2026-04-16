@@ -11,7 +11,6 @@ struct cache_set{
   void updateLRU(int wayIndex){
     updateSetLRU();
     ways[wayIndex].lru_counter = 0;
-    ways[wayIndex].dirty = false;
   };
 
   void updateSetLRU(){

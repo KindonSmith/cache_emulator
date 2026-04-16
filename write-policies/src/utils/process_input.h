@@ -73,22 +73,23 @@ string getFilePath(char* inputFileName){
 
 void processAddressWithPolicy(string addressWithPolicy, Cache &cache){
   stringstream ss(addressWithPolicy);
-  vector<string> instructions{};
+  vector<string> instruction{};
   string token{};
   uint32_t address{};
 
   while (ss >> token) {
-    instructions.push_back(token);
+    instruction.push_back(token);
   }
-  if(!validateInstructionReadWrite(instructions[0])){
+  if(!validateInstructionReadWrite(instruction[0])){
     // bad read/write
     return;
   }
-  if(!validateNumberOfInstructions(instructions.size())){
+  if(!validateNumberOfInstructions(instruction.size())){
     // missing one or both pieces of the instruction
     return;
   }
-  address = stoi(instructions[1], 0, 16);
+  address = stoi(instruction[1], 0, 16);
+  cache.lookUp(address, instruction[0]);
 }
 
 void checkInstructionList(ifstream &fileStream, Cache &cache){
