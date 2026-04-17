@@ -1,0 +1,27 @@
+# Cache Emulator
+
+A series of cache emulators in scaling complexity; starting with L1 direct-mapping and progressing to dynamic configuration, write policies, multi-level hierarchies, and stateful AMAT tracking.
+
+## Overview
+
+Built as prep for Georgia Tech's OMSCS program, focusing on C++ systems programming and HPCA.
+
+### Projects
+| # | Project | Description |
+|---|---------|-------------|
+| 1 | [direct-mapped-cache](./direct-mapped-cache) | ... |
+| 2 | [4-way-set-associative-lru](./4-way-set-associative-lru) | ... |
+| 3 | [configurable-cache-set-associative-lru](./configurable-cache-set-associative-lru) | ... |
+| 4 | [write-policies](./write-policies) | ... |
+| 5 | [two-level-amat](./two-level-amat) | ... |
+
+### Prerequisites
+- g++ / GCC
+- Make
+
+### Build and Run
+Projects build independently, so please see each project's respective readme. 
+
+
+### Author
+Kindon
