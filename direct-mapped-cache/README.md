@@ -3,8 +3,8 @@
 A direct-mapped cache emulator where each instruction maps directly to a single address.
 
 ## Build
-bash cd src
-g++ main.cpp -o dm-cache.exe
+1. bash cd src
+2. g++ main.cpp -o dm-cache.exe
 
 ## Use
 ./dm-cache.exe <input_file>
