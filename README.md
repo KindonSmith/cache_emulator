@@ -1,6 +1,6 @@
 # Cache Emulator
 
-A series of cache emulators in scaling complexity; starting with L1 direct-mapping and progressing to dynamic configuration, write policies, multi-level hierarchies, and stateful AMAT tracking.
+Cache emulation progression series; starting with L1 direct-mapping and progressing to dynamic configuration, write policies, multi-level hierarchies, and stateful AMAT tracking.
 
 ## Overview
 
@@ -20,7 +20,7 @@ Built as prep for Georgia Tech's OMSCS program, focusing on C++ systems programm
 - Make
 
 ### Build and Run
-Projects build independently, so please see each project's respective readme. 
+Projects build independently, so please see each project's respective README. 
 
 
 ### Author
