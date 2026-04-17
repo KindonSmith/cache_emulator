@@ -9,10 +9,10 @@ Built as prep for Georgia Tech's OMSCS program, focusing on C++ systems programm
 ### Projects
 | # | Project | Description |
 |---|---------|-------------|
-| 1 | [direct-mapped-cache](./direct-mapped-cache) | ... |
-| 2 | [4-way-set-associative-lru](./4-way-set-associative-lru) | ... |
-| 3 | [configurable-cache-set-associative-lru](./configurable-cache-set-associative-lru) | ... |
-| 4 | [write-policies](./write-policies) | ... |
+| 1 | [direct-mapped-cache](./direct-mapped-cache) | Fixed size, direct-mapped cache tracking accesses, hits, and misses. |
+| 2 | [4-way-set-associative-lru](./4-way-set-associative-lru) | Set-associative ways, LRU replacement |
+| 3 | [configurable-cache-set-associative-lru](./configurable-cache-set-associative-lru) | CLI runtime configuration |
+| 4 | [write-policies](./write-policies) | Write-back / write-through + write-allocate / no-write-allocate policies, dirty bit tracking |
 | 5 | [two-level-amat](./two-level-amat) | ... |
 
 ### Prerequisites
