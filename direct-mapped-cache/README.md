@@ -9,7 +9,7 @@ g++ main.cpp -o dm-cache.exe
 
 ## Usage
 ```
-./dm-cache.exe <input_file>
+./dm-cache.exe
 ```
 
 ## Spec 
