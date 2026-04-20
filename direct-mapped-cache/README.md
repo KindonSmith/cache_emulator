@@ -1,6 +1,6 @@
 # Direct-mapped Cache
 
-A direct-mapped cache emulator where address maps directly to a single slot.
+A direct-mapped cache emulator where each address maps to a single slot.
 
 ## Build
 ```bash cd src
