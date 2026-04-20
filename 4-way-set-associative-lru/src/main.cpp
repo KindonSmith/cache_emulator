@@ -18,26 +18,6 @@ uint32_t extractTag (uint32_t inputAddress){
   return inputAddress >> 8;
 }
 
-// cacheLookup takes in a cache, index, and tag data
-// quick lookup uses index to verify validity then checks data against ag
-// if not valid, we miss and cache
-// if valid, we hit. for this assignment, just return 1.
-
-/*int cacheLookup(cache_block cache[], uint32_t index, uint32_t tag){
-  if (cache[index].valid){
-    if (cache[index].tag == tag){
-      return 1;
-    }
-  }
-  // if invalid or tag doesn't match, we have missed
-  // we should immediately cache and return 0
-  cache[index].tag = tag;
-  cache[index].valid = true;
- 
-  return 0;
-
-}
-*/
 
 // this cachelookup varies from proj 1 because it uses a 2d array
 // a cache containing sets of ways
@@ -85,6 +65,7 @@ void readInputFile(cache_set cache[], int& hits, int& queries){
     inputFile.close();
   }else{
     cout << "Unable to open file." << endl;
+    throw runtime_error("Unable to open input file.");
   }
 }
 
