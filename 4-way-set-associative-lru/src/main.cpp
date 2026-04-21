@@ -50,7 +50,7 @@ int cacheLookup(cache_set cache[], uint32_t index, uint32_t tag){
 }
 
 void readInputFile(cache_set cache[], int& hits, int& queries){
-  ifstream inputFile ("input/input.txt");
+  ifstream inputFile ("./input/input.txt");
   uint32_t address;
   uint32_t index;
   uint32_t tag;
