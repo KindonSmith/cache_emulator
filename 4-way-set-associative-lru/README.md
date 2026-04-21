@@ -2,8 +2,8 @@
 Building on direct-mapping, this cache supports 4-way associativity (8 sets of 4 ways) for a fixed-sized cache.
 
 ## Build
-```
-bash cd src
+```bash 
+cd src
 g++ main.cpp -o 4w-cache.exe
 ```
 
@@ -27,12 +27,13 @@ For this cache, a 32-bit address breaks into three fields:
 
 ```
 | 24 tag bits | 3 index bits | 5 offset bits |
+
+
+offset (bits 4–0): which byte within the 32-byte block
+index (bits 7–5): which of the 32 cache slots to look in
+tag (bits 31–8): stored in the block to verify it holds the right data
+
 ```
-
-- **offset** (bits 4–0): which byte within the 32-byte block
-- **index** (bits 7–5): which of the 32 cache slots to look in
-- **tag** (bits 31–8): stored in the block to verify it holds the right data
-
 
 **Input:** A plain text file where each line is a hexadecimal memory address, e.g.:
 ```
@@ -54,7 +55,8 @@ Hit rate: 90.625%
 ## Design
 #### Data Structures
 ##### New
-- cache_set.h: a struct containing 4 ways, updating LRU trackers for it's ways when accessed.
+- cache_set.h: a struct containing 4 ways, updating LRU trackers for its ways when accessed.
+- cache: cache is abstracted as a fixed array of cache_sets (cache_set[]). Cache size is immutable across runs, so designing for optimization remains a good paradigm, even if performance is negligible in this example.
 
 ##### Update:
 - cache_block.h: now tracks last usage via an integer counter. Managed by parental set.
@@ -74,5 +76,4 @@ Hit rate: 90.625%
 
 #### Scope
 - No write policies - this is a read-only trace
-- Set associativity for fixed-size cache.
-- LRU policy implementation on set
+- Fixed-size cache immutable across runs
