@@ -17,4 +17,6 @@ int getConfigFileArgumentIndex(int numArgs, char** args){
   return 0;
 }
 
+int getConfigFile(int configFileIndex){}
+
 #endif

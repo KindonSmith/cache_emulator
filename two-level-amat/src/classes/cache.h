@@ -10,17 +10,19 @@
 using namespace std;
 
 class Cache{
-  vector<cache_set> sets{};
-  int cache_size{};
-  int block_size{};
-  int associativity{};
-  WriteHitPolicy write_hit;
-  WriteMissPolicy write_miss;
-  Stats stats{};
-  
-  uint32_t offsetBits{};
-  uint32_t indexBits{};
-  uint32_t tagBits{};
+  private:
+  public:
+    vector<cache_set> sets{};
+    int cache_size{};
+    int block_size{};
+    int associativity{};
+    WriteHitPolicy write_hit;
+    WriteMissPolicy write_miss;
+    Stats stats{};
+    
+    uint32_t offsetBits{};
+    uint32_t indexBits{};
+    uint32_t tagBits{};
 
 
   /**

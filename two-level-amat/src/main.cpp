@@ -1,0 +1,11 @@
+#include "classes/cache.h"
+#include "utils/input_parsing.h"
+
+using namespace std;
+
+int main (int argc, char** argv){
+  // ./cache_sim --config configs/default.cfg input/trace1.txt
+  // need a function to find config file in args. I don't want to hardcode "argv[1] = this arg" again
+  // so we can use a function to check for config file and increment index
+  
+}
