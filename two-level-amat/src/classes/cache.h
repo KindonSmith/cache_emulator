@@ -10,7 +10,7 @@
 using namespace std;
 
 class Cache{
-  std::vector<cache_set> sets{};
+  vector<cache_set> sets{};
   int cache_size{};
   int block_size{};
   int associativity{};
