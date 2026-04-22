@@ -2,14 +2,17 @@
 #define Input_Parsing_H
 #include <cstdint>
 #include <iostream>
+#include <fstream>
+#include <string>
 
-int getConfigFileArgumentIndex(int numArgs, char** args){
+using namespace std;
+
+int getConfigFileArgumentIndex(int numArgs, char** argv){
   
   // goes from 0 to args[numArgs-2], because if last arg (args[numArgs-1]) 
   // is --config, we know there is no config file after
   for(int i = 0; i < numArgs - 1; i++){
-    cout << args[i] << endl;
-    if (string(args[i]) == "--config"){
+    if (string(argv[i]) == "--config"){
       return i+1;
     }
   }
@@ -17,6 +20,13 @@ int getConfigFileArgumentIndex(int numArgs, char** args){
   return 0;
 }
 
-int getConfigFile(int configFileIndex){}
+string getConfigFileString(int numArgs, char** argv){
+  return (string)argv[getConfigFileArgumentIndex(numArgs, argv)];
+}
+
+ifstream getConfigFile(string filePath){
+  ifstream inputFile(filePath);
+  return inputFile;
+}
 
 #endif
