@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <map>
 
 using namespace std;
 
@@ -16,7 +17,9 @@ int getConfigFileArgumentIndex(int numArgs, char** argv){
       return i+1;
     }
   }
-  throw std::runtime_error("No configuration file. Please include --config [config.txt]");
+  // if we reach here, no config file found. we can't proceed without a config file so error out
+  __throw_runtime_error("No configuration file. Please include --config [config.txt]");
+  // extra safety, shouldn't hit.
   return 0;
 }
 
@@ -24,9 +27,18 @@ string getConfigFileString(int numArgs, char** argv){
   return (string)argv[getConfigFileArgumentIndex(numArgs, argv)];
 }
 
-ifstream getConfigFile(string filePath){
-  ifstream inputFile(filePath);
+ifstream getConfigFile(int numArgs, char** argv){
+  ifstream inputFile(getConfigFileString(numArgs, argv));
   return inputFile;
 }
+
+map<string, int> splitCacheConfigParameterAndValue(string configLine){
+  size_t position = configLine.find('=');
+  map<string, int> configValue{};
+  configValue.insert({configLine.substr(0, position), stoi(configLine.substr(position+1))});
+  return configValue;
+}
+
+
 
 #endif

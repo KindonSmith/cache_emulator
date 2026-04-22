@@ -1,6 +1,10 @@
 #include "classes/cache.h"
 #include "utils/input_parsing.h"
+#include "utils/build_cache.h"
 #include <fstream>
+#include <iostream>
+#include <sstream>
+#include <string> 
 
 using namespace std;
 
@@ -10,10 +14,16 @@ int main (int argc, char** argv){
   // so we can use a function to check for config file and increment index
 
 
-  ifstream inputFile = getConfigFile(getConfigFileString(argc, argv));
+  ifstream configFile = getConfigFile(argc, argv);
+  string configLine{};
+  if (configFile.is_open()){
+    // process config file
+    // do we want to get 2 cache_configs? do we just build cache_set?
+    getline(configFile, configLine);
+    splitCacheConfigParameterAndValue(configLine);
 
-  if (inputFile.is_open()){
-    cout << "Open!" << endl;
+  } else {
+    __throw_runtime_error("Unable to open config file.");
   }
   
 }
