@@ -18,7 +18,7 @@ int getConfigFileArgumentIndex(int numArgs, char** argv){
     }
   }
   // if we reach here, no config file found. we can't proceed without a config file so error out
-  __throw_runtime_error("No configuration file. Please include --config [config.txt]");
+  throw runtime_error("No configuration file. Please include --config [config.txt]");
   // extra safety, shouldn't hit.
   return 0;
 }
@@ -32,19 +32,25 @@ ifstream getConfigFile(int numArgs, char** argv){
   return inputFile;
 }
 
-map<string, string> splitCacheConfigParameterAndValue(string configLine){
-  size_t positionEquals = configLine.find('=');
-  size_t positionIdent = configLine.find('_');
-  map<string, string> configValue{};
-  configValue.insert({configLine.substr(positionIdent, positionEquals), configLine.substr(positionEquals+1)});
-  return configValue;
+void splitCacheConfigParameterAndValue(string configLine, map<string, string> &pandv){
+  long long positionEquals = configLine.find('=');
+  long long positionIdent = configLine.find('_');
+  if (positionEquals == string::npos || positionIdent == string::npos) { 
+    throw runtime_error("Malformed config input." + configLine);
+  }
+  pandv.insert({configLine.substr(positionIdent, positionEquals), configLine.substr(positionEquals+1)});
+  cout << configLine.substr(positionIdent, positionEquals - 1) << " | " << configLine.substr(positionEquals + 1) << endl;
 }
 
 void parseConfig(ifstream &configFile){
   string configLine{};
+  map<string, string> pandv{};
+  
 
   while(getline(configFile, configLine)){
-    splitCacheConfigParameterAndValue(configLine);
+    splitCacheConfigParameterAndValue(configLine, pandv);
+    // do we want a messy switch implementation?
+    // 
   } 
 
 
