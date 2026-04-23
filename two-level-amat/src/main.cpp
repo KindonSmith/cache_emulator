@@ -19,8 +19,7 @@ int main (int argc, char** argv){
   if (configFile.is_open()){
     // process config file
     // do we want to get 2 cache_configs? do we just build cache_set?
-    getline(configFile, configLine);
-    splitCacheConfigParameterAndValue(configLine);
+    parseConfig(configFile);
 
   } else {
     __throw_runtime_error("Unable to open config file.");
