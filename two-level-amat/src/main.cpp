@@ -15,14 +15,6 @@ int main (int argc, char** argv){
 
 
   ifstream configFile = getConfigFile(argc, argv);
-  string configLine{};
-  if (configFile.is_open()){
-    // process config file
-    // do we want to get 2 cache_configs? do we just build cache_set?
-    parseConfig(configFile);
-
-  } else {
-    __throw_runtime_error("Unable to open config file.");
-  }
+  parseConfig(configFile);  
   
 }
