@@ -1,6 +1,7 @@
 #include "classes/cache.h"
 #include "utils/input_parsing.h"
 #include "utils/build_cache.h"
+#include "classes/cache_system.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -15,6 +16,7 @@ int main (int argc, char** argv){
 
 
   ifstream configFile = getConfigFile(argc, argv);
-  parseConfig(configFile);  
+  Cache_System system{};
+  parseConfig(configFile, system);  
   
 }

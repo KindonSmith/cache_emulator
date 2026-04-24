@@ -1,5 +1,7 @@
 #ifndef Input_Parsing_H
 #define Input_Parsing_H
+#include "../classes/cache_system.h"
+#include "build_cache.h"
 #include <cstdint>
 #include <iostream>
 #include <fstream>
@@ -49,7 +51,7 @@ void splitCacheConfigParameterAndValue(string configLine, map<string, map<string
   pandv[configLine.substr(0, positionIdent)].insert({configLine.substr(positionIdent, positionEquals - 2), configLine.substr(positionEquals+1)});
 }
 
-void parseConfig(ifstream &configFile){
+void parseConfig(ifstream &configFile, Cache_System &system){
   string configLine{};
   map<string, map<string, string>> pandv{};
   
@@ -59,15 +61,26 @@ void parseConfig(ifstream &configFile){
 
   while(getline(configFile, configLine)){
     splitCacheConfigParameterAndValue(configLine, pandv);
-    // do we want a messy switch implementation?
-    // what about map<string, map<string, string>> such that L1 and L2 are higher level indexes with values of fields.
   } 
+
+  
+  /* debug
   for (const auto& cacheConfig : pandv){
     for (const auto& param : cacheConfig.second){
       cout << cacheConfig.first << " | " << param.first << " | " << param.second << endl;
     }
   }
-
+  */
+  for (auto const& [key, val] : pandv){
+    // for each cache (l1, l2, etc.) build a config from it nad throw it into our cache system by ref
+    buildCacheConfig(val, system);
+    /*
+    for (auto const& [subkey, subval] : val){
+      cout << subkey 
+           << subval
+           << endl;
+    }*/
+  }      
 
 }
 
