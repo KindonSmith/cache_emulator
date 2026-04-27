@@ -12,7 +12,7 @@ private:
 public:
   Cache_System(vector<Cache> cacheList);
   Cache_System();
-  vector<Cache> get_caches();
+  vector<Cache> get_cache_list();
   void insert_cache(cache_config config);
 };
 
@@ -22,12 +22,13 @@ Cache_System::Cache_System(vector<Cache> cacheList)
 }
 Cache_System::Cache_System(){}
 
-vector<Cache> Cache_System::get_caches(){
+vector<Cache> Cache_System::get_cache_list(){
   return cache_list;
 }
 
 void Cache_System::insert_cache(cache_config config){
-
+  Cache cache(config);
+  cache_list.push_back(cache);
 }
 
 

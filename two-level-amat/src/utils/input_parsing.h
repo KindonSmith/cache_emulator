@@ -74,6 +74,7 @@ void parseConfig(ifstream &configFile, Cache_System &system){
   for (auto const& [key, val] : pandv){
     // for each cache (l1, l2, etc.) build a config from it nad throw it into our cache system by ref
     buildCacheConfig(val, system);
+    cout << system.get_cache_list().size() << endl;
     /*
     for (auto const& [subkey, subval] : val){
       cout << subkey 
