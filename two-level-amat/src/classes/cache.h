@@ -101,8 +101,8 @@ class Cache{
 
   void updateBlock(cache_block &block){
     if(block.dirty) {
-      stats.writes_to_next_level++;
-      stats.writebacks++;
+      // stats.writes_to_next_level++;
+      // stats.writebacks++;
       block.dirty = false;
     }
   }
@@ -118,19 +118,19 @@ class Cache{
     if(write_hit == WriteHitPolicy::WRITE_BACK) block.dirty = true;
   }
   void nwa_miss(cache_block &block){
-    stats.writes_to_next_level++;
+    // stats.writes_to_next_level++;
   }
 
   void instruction_miss(cache_block &block, uint32_t tag, string directive){
-    stats.misses++;
+    // stats.misses++;
     updateBlock(block);
     
     if(directive == "W"){
-      stats.writes++;
+      // stats.writes++;
       if(write_miss == WriteMissPolicy::WRITE_ALLOCATE) wa_miss(block, tag);
       if(write_miss == WriteMissPolicy::NO_WRITE_ALLOCATE) nwa_miss(block);
     }else if(directive == "R"){
-      stats.reads++;
+      // stats.reads++;
       loadBlock(block, tag);
     }
   }
@@ -140,17 +140,17 @@ class Cache{
   }
 
   void wt_hit(){
-    stats.writes_to_next_level++;
+    // stats.writes_to_next_level++;
   }
 
   void instruction_hit(cache_block &block, uint32_t tag, string directive){
-    stats.hits++;
+    //stats.hits++;
     if(directive == "W"){
-      stats.writes++;
+      //stats.writes++;
       if(write_hit == WriteHitPolicy::WRITE_BACK) wb_hit(block);
       if(write_hit == WriteHitPolicy::WRITE_THROUGH) wt_hit();
     }else if(directive == "R"){
-      stats.reads++;
+      //stats.reads++;
     }
 
   }
@@ -162,20 +162,20 @@ class Cache{
    * @param address 
    * @return int 
    */
-  int lookUp(uint32_t address, string directive){
+  lookup_result lookUp(uint32_t address, string directive){
     int lruMaxIndex{};
     uint32_t index = getIndex(address);
     uint32_t tag = getTag(address);
 
-    stats.total_accesses++;
+    // stats.total_accesses++;
 
     for(int wayIndex = 0; wayIndex < associativity; wayIndex++){
       if(sets[index].ways[wayIndex].valid){
         if (matchingTags(sets[index].ways[wayIndex].tag, tag)){
-          //updateBlocks(index, wayIndex);
+          // updateBlock(index, wayIndex);
           instruction_hit(sets[index].ways[wayIndex], tag, directive);
           sets[index].updateLRU(wayIndex);
-          return 1;
+          return lookup_result(true, false, &sets[index].ways[wayIndex]);
         }
       }
 
@@ -186,14 +186,15 @@ class Cache{
       }
     }
 
-    // if we reach here, we've checked all necessary ways and can write
-    // we've also missed, so we return 0
+
+    bool block_was_dirty = sets[index].ways[lruMaxIndex].dirty;
     instruction_miss(sets[index].ways[lruMaxIndex], tag, directive);
     sets[index].updateLRU(lruMaxIndex);
 
-
-    return 0;
+    return lookup_result(false, block_was_dirty, &sets[index].ways[lruMaxIndex]);
   }
+
+
   /**
    * @brief 
    * Cache size:      1024 bytes
