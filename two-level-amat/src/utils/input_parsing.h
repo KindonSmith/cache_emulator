@@ -34,7 +34,7 @@ ifstream getConfigFile(int numArgs, char** argv){
   return inputFile;
 }
 
-void splitCacheConfigParameterAndValue(string configLine, map<string, map<string, string>> &pandv){
+void mapCacheConfigParameterToValue(string configLine, map<string, map<string, string>> &pandv){
   long long positionEquals = configLine.find('=');
   long long positionIdent = configLine.find('_');
   // need to run checks to make sure our config input is working as expected.
@@ -51,6 +51,17 @@ void splitCacheConfigParameterAndValue(string configLine, map<string, map<string
   pandv[configLine.substr(0, positionIdent)].insert({configLine.substr(positionIdent, positionEquals - 2), configLine.substr(positionEquals+1)});
 }
 
+void insertCachesIntoSystem(const map<string, map<string, string>> pandv, Cache_System &system){
+  for (auto const& [key, val] : pandv){
+    // for each cache (l1, l2, etc.) build a config from it nad throw it into our cache system by ref
+    if (key != "MEMORY"){
+      buildCacheConfig(val, system);
+    }else {
+      // memory access time handle
+    }
+  }   
+}
+
 void parseConfig(ifstream &configFile, Cache_System &system){
   string configLine{};
   map<string, map<string, string>> pandv{};
@@ -60,28 +71,9 @@ void parseConfig(ifstream &configFile, Cache_System &system){
   }
 
   while(getline(configFile, configLine)){
-    splitCacheConfigParameterAndValue(configLine, pandv);
+    mapCacheConfigParameterToValue(configLine, pandv);
   } 
-
-  
-  /* debug
-  for (const auto& cacheConfig : pandv){
-    for (const auto& param : cacheConfig.second){
-      cout << cacheConfig.first << " | " << param.first << " | " << param.second << endl;
-    }
-  }
-  */
-  for (auto const& [key, val] : pandv){
-    // for each cache (l1, l2, etc.) build a config from it nad throw it into our cache system by ref
-    buildCacheConfig(val, system);
-    cout << system.get_cache_list().size() << endl;
-    /*
-    for (auto const& [subkey, subval] : val){
-      cout << subkey 
-           << subval
-           << endl;
-    }*/
-  }      
+  insertCachesIntoSystem(pandv, system);
 
 }
 
