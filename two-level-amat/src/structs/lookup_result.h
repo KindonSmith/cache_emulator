@@ -7,7 +7,7 @@ using namespace std;
 struct lookup_result{
   bool hit;
   bool writeback_occurred;
-  cache_block* block;
+  cache_block* victim;
 };
 
 
