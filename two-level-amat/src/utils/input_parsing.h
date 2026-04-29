@@ -10,27 +10,28 @@
 
 using namespace std;
 
-int getConfigFileArgumentIndex(int numArgs, char** argv){
+
+int getFileArgumentIndex(int numArgs, char** argv, string file_flag){
   
   // goes from 0 to args[numArgs-2], because if last arg (args[numArgs-1]) 
   // is --config, we know there is no config file after
   for(int i = 0; i < numArgs - 1; i++){
-    if (string(argv[i]) == "--config"){
+    if (string(argv[i]) == file_flag){
       return i+1;
     }
   }
-  // if we reach here, no config file found. we can't proceed without a config file so error out
-  throw runtime_error("No configuration file. Please include --config [config.txt]");
+  // if we reach here, no file found. we can't proceed without proper files so error out
+  throw runtime_error("File not found:" + file_flag);
   // extra safety, shouldn't hit.
   return 0;
 }
 
-string getConfigFileString(int numArgs, char** argv){
-  return (string)argv[getConfigFileArgumentIndex(numArgs, argv)];
+string getFileString(int numArgs, char** argv, string file_flag){
+  return (string)argv[getFileArgumentIndex(numArgs, argv, file_flag)];
 }
 
-ifstream getConfigFile(int numArgs, char** argv){
-  ifstream inputFile(getConfigFileString(numArgs, argv));
+ifstream getFile(int numArgs, char** argv, string file_flag){
+  ifstream inputFile(getFileString(numArgs, argv, file_flag));
   return inputFile;
 }
 

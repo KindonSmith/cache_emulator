@@ -15,7 +15,8 @@ int main (int argc, char** argv){
   // so we can use a function to check for config file and increment index
 
 
-  ifstream configFile = getConfigFile(argc, argv);
+  ifstream configFile = getFile(argc, argv,"--config");
+  ifstream inputFile = getFile(argc, argv,"--input");
   Cache_System system{};
   parseConfig(configFile, system);  
   
