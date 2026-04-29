@@ -5,4 +5,5 @@
 #include "cache_config.h"
 #include "lookup_result.h"
 #include "stats.h"
+#include "instruction.h"
 #endif

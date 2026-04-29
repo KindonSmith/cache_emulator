@@ -78,6 +78,56 @@ void parseConfig(ifstream &configFile, Cache_System &system){
 
 }
 
+bool validateNumberOfInstructions(int numInstructions){
+  if (numInstructions == 2) return true;
+  cout << "Skipped invalid instruction. Too many line items;" << endl;
+
+  return false;
+}
+bool validateInstructionReadWrite(string readWrite){
+  if (readWrite == "W" || readWrite == "R"){
+    return true;
+  }
+  cout << "Skipped invalid instruction: " << readWrite << ". Use R or W." << endl;
+  return false;
+}
+
+bool processAddressWithPolicy(string addressWithPolicy, Instruction &out){
+  stringstream ss(addressWithPolicy);
+  vector<string> instruction{};
+  string token{};
+  uint32_t address{};
+
+  while (ss >> token) {
+    instruction.push_back(token);
+  }
+  if(!validateInstructionReadWrite(instruction[0])){
+    // bad read/write
+    return false;
+  }
+  if(!validateNumberOfInstructions(instruction.size())){
+    // missing one or both pieces of the instruction
+    return false;
+  }
+  out.directive = instruction[0];
+  out.address = stoi(instruction[1], 0, 16);
+  return true;
+  // address = stoi(instruction[1], 0, 16);
+  //cache.lookUp(address, instruction[0]);
+}
+
+void parseInstructions(ifstream &fileStream, vector<Instruction>& inst_list){
+  string addressWithPolicy{};
+  Instruction inst;
+  if (fileStream.is_open()){
+    while(getline(fileStream, addressWithPolicy)){
+      if (processAddressWithPolicy(addressWithPolicy, inst)){
+        inst_list.push_back(inst);
+      }
+    }
+  }
+}
+
 
 
 #endif

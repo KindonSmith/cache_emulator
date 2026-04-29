@@ -11,11 +11,15 @@ private:
   map<int, vector<Cache>> cache_list;
   int num_caches = 2;
   Stats system_stats;
+  vector<Instruction> instruction_list;
 public:
   Cache_System();
   vector<Cache> get_cache_list();
   void insert_cache(cache_config config);
-  lookup_result look_up(uint32_t address, string directive);
+  lookup_result look_up(uint32_t address, string directive, Cache cache);
+  void set_instructions(vector<Instruction> _instructions);
+  vector<Instruction> get_instructions();
+  void simulate();
 };
 
 
@@ -37,6 +41,14 @@ void Cache_System::insert_cache(cache_config config){
     // more than 2 caches being pushed. unsupported.
     cout << "Warning: Only 2 caches supported, but more than 2 configurations found." << endl;
   }
+}
+
+void Cache_System::set_instructions(vector<Instruction> _instructions){
+  instruction_list = _instructions;
+}
+
+vector<Instruction> Cache_System::get_instructions(){
+  return instruction_list;
 }
 
 
