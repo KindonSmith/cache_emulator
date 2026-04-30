@@ -123,7 +123,7 @@ class Cache{
 
   void instruction_miss(cache_block &block, uint32_t tag, string directive){
     // stats.misses++;
-    updateBlock(block);
+    // updateBlock(block);
     
     if(directive == "W"){
       // stats.writes++;
@@ -162,10 +162,10 @@ class Cache{
    * @param address 
    * @return int 
    */
-  lookup_result lookUp(uint32_t address, string directive){
+  lookup_result lookUp(Instruction instruction){
     int lruMaxIndex{};
-    uint32_t index = getIndex(address);
-    uint32_t tag = getTag(address);
+    uint32_t index = getIndex(instruction.address);
+    uint32_t tag = getTag(instruction.address);
 
     // stats.total_accesses++;
 
@@ -173,7 +173,7 @@ class Cache{
       if(sets[index].ways[wayIndex].valid){
         if (matchingTags(sets[index].ways[wayIndex].tag, tag)){
           // updateBlock(index, wayIndex);
-          instruction_hit(sets[index].ways[wayIndex], tag, directive);
+          instruction_hit(sets[index].ways[wayIndex], tag, instruction.directive);
           sets[index].updateLRU(wayIndex);
           return lookup_result(true, false, &sets[index].ways[wayIndex]);
         }
@@ -185,11 +185,16 @@ class Cache{
         lruMaxIndex = wayIndex;
       }
     }
-
-
+     /*
+    // wb + nwa is an incoherent combination (write to cache later + only write to cache now)
+    // therefore a slot can never be dirty on NWA miss, so this should always result in a
+    // false on NWA miss. 
+    */
     bool block_was_dirty = sets[index].ways[lruMaxIndex].dirty;
-    instruction_miss(sets[index].ways[lruMaxIndex], tag, directive);
-    sets[index].updateLRU(lruMaxIndex);
+    instruction_miss(sets[index].ways[lruMaxIndex], tag, instruction.directive);
+    if(write_miss != WriteMissPolicy::NO_WRITE_ALLOCATE) {
+      sets[index].updateLRU(lruMaxIndex);
+    }
 
     return lookup_result(false, block_was_dirty, &sets[index].ways[lruMaxIndex]);
   }
