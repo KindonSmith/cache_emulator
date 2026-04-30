@@ -117,15 +117,17 @@ bool processAddressWithPolicy(string addressWithPolicy, Instruction &out){
   //cache.lookUp(address, instruction[0]);
 }
 
-void parseInstructions(ifstream &fileStream, vector<Instruction>& inst_list){
+void parseInstructions(ifstream &fileStream, Cache_System& system){
   string addressWithPolicy{};
   Instruction inst;
   if (fileStream.is_open()){
     while(getline(fileStream, addressWithPolicy)){
       if (processAddressWithPolicy(addressWithPolicy, inst)){
-        inst_list.push_back(inst);
+        system.insert_instruction(inst);
       }
     }
+  }else{
+    throw runtime_error("Input File not found");
   }
 }
 
