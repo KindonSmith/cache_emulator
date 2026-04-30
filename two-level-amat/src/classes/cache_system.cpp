@@ -17,7 +17,7 @@ void Cache_System::set_instructions(vector<Instruction> _instructions){
   instruction_list = _instructions;
 }
 
-vector<Instruction> Cache_System::get_instructions(){
+vector<Instruction> Cache_System::get_instruction_list(){
   return instruction_list;
 }
 
@@ -27,7 +27,8 @@ lookup_result Cache_System::look_up(uint32_t address, string directive, Cache ca
 
 
 void Cache_System::simulate(){
-  auto instructions = get_instructions();
+  auto instructions = get_instruction_list();
+  auto caches = get_cache_list();
   for(int i = 0; i < instructions.size(); i++){
     // for each instruction, we need to lookup in l1. on miss, we lookup l2.
     // 

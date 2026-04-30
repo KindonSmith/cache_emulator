@@ -14,11 +14,11 @@ private:
   vector<Instruction> instruction_list;
 public:
   Cache_System();
-  vector<Cache> get_cache_list();
+  map<int, vector<Cache>> get_cache_list();
   void insert_cache(cache_config config);
   lookup_result look_up(uint32_t address, string directive, Cache cache);
   void set_instructions(vector<Instruction> _instructions);
-  vector<Instruction> get_instructions();
+  vector<Instruction> get_instruction_list();
   void simulate();
 };
 
