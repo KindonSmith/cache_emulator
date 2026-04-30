@@ -49,7 +49,7 @@ void mapCacheConfigParameterToValue(string configLine, map<string, map<string, s
   {
     throw runtime_error("Malformed config input: " + configLine + ". \n" + "Please include a value after the equal sign.");
   }
-  pandv[configLine.substr(0, positionIdent)].insert({configLine.substr(positionIdent, positionEquals - 2), configLine.substr(positionEquals+1)});
+  pandv[configLine.substr(0, positionIdent)].insert({configLine.substr(positionIdent, positionEquals - positionIdent), configLine.substr(positionEquals+1)});
 }
 
 void insertCachesIntoSystem(const map<string, map<string, string>> pandv, Cache_System &system){
@@ -59,6 +59,7 @@ void insertCachesIntoSystem(const map<string, map<string, string>> pandv, Cache_
       buildCacheConfig(val, system);
     }else {
       // memory access time handle
+      system.set_access_time(stoi(val.at("_ACCESS_TIME")));
     }
   }   
 }

@@ -5,9 +5,9 @@ Cache_System::Cache_System(){}
 void Cache_System::insert_cache(cache_config config){
   Cache cache(config);
   if (cache_list.find(1) == cache_list.end()){
-      cache_list[1] = cache;
+      cache_list.emplace(1, cache);
   } else if (cache_list.find(2) == cache_list.end()){
-      cache_list[2]= cache;
+      cache_list.emplace(2, cache);
   } else {
     cout << "Warning: Only 2 caches supported, but more than 2 configurations found." << endl;
   }
@@ -17,12 +17,20 @@ void Cache_System::set_instructions(vector<Instruction> _instructions){
   instruction_list = _instructions;
 }
 
+map<int, Cache> Cache_System::get_cache_list(){
+  return cache_list;
+}
+
 vector<Instruction> Cache_System::get_instruction_list(){
   return instruction_list;
 }
 
 lookup_result Cache_System::look_up(uint32_t address, string directive, Cache cache){
   return cache.lookUp(address, directive);
+}
+
+void Cache_System::set_access_time(int _access_time){
+  memory_access_time = _access_time;
 }
 
 
