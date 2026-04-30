@@ -213,10 +213,10 @@ class Cache{
   void printConfig() {
     string w = "  ";
     cout << "Cache Configuration:            " << endl;
-    cout << w << "Cache size:                " << w << cache_size << "bytes" << endl;
-    cout << w << "Block sze:                 " << w << block_size << "bytes" << endl;
-    cout << w << "Associativity:             " << w << associativity << "ways" << endl;
-    cout << w << "Number of se               " << w << sets.size() << endl;
+    cout << w << "Cache size:                " << w << cache_size << " bytes" << endl;
+    cout << w << "Block sze:                 " << w << block_size << " bytes" << endl;
+    cout << w << "Associativity:             " << w << associativity << " ways" << endl;
+    cout << w << "Number of sets:            " << w << sets.size() << endl;
     cout << w << "Write hit:                 " << w << (write_hit == WriteHitPolicy::WRITE_BACK ? "write-back" : "write-throu") << endl;
     cout << w << "Write miss:                " << w << (write_miss == WriteMissPolicy::WRITE_ALLOCATE ? "write-allocate" : "no-write-allocate") << endl;
   }

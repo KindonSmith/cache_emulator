@@ -24,6 +24,9 @@ public:
   void set_access_time(int _access_time);
   void validate_result(lookup_result result, int cache_index, string directive);
   void insert_instruction(Instruction instruction);
+  void print_cache_stats(int index);
+  void print_system_config();
+  void print_simulated_stats();
 };
 
 
