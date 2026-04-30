@@ -92,8 +92,11 @@ void Cache_System::simulate(){
       throw runtime_error("Could not find valid cache. Please check cache index configuration.");
     }
   }
-  cout << cache_stats[1].hits << endl;
-  cout << cache_stats[1].misses << endl;
-  cout << cache_stats[1].writebacks << endl;
-
 }
+
+void Cache_System::print_system_config(){
+  auto cache_list = get_cache_list();
+  cache_list.at(1).printConfig();
+  cache_list.at(2).printConfig();
+}
+
