@@ -8,7 +8,7 @@ class Cache_System
 {
 private:
   /* data */
-  map<int, vector<Cache>> cache_list;
+  map<int, Cache> cache_list;
   int num_caches = 2;
   Stats system_stats;
   vector<Instruction> instruction_list;
