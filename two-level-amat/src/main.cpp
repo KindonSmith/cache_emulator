@@ -19,5 +19,7 @@ int main (int argc, char** argv){
   ifstream inputFile = getFile(argc, argv,"--input");
   Cache_System system{};
   parseConfig(configFile, system);  
+  parseInstructions(inputFile, system);
+  system.simulate();
   
 }
