@@ -10,6 +10,8 @@ struct Stats{
   int misses{};
   int writebacks{};
   int writes_to_next_level{};
+
+  Stats(){};
 };
 
 #endif
