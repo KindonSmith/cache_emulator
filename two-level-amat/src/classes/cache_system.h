@@ -27,6 +27,7 @@ public:
   void insert_instruction(Instruction instruction);
   void print_system_config();
   void print_simulated_stats();
+  void print_analysis();
 };
 
 

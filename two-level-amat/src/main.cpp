@@ -21,6 +21,7 @@ int main (int argc, char** argv){
   parseConfig(configFile, system);  
   parseInstructions(inputFile, system);
   system.simulate();
-  system.print_simulated_stats();
+  //system.print_simulated_stats();
+  system.print_analysis();
   
 }

@@ -15,6 +15,7 @@ class Cache{
     vector<cache_set> sets{};
     int cache_size{};
     int block_size{};
+    int hit_time{};
     int associativity{};
     WriteHitPolicy write_hit;
     WriteMissPolicy write_miss;
@@ -52,7 +53,7 @@ class Cache{
   }
   Cache(cache_config config)
         : cache_size(config.cache_size), block_size(config.block_size), associativity(config.associativity),
-        write_hit(config.write_hit), write_miss(config.write_miss)
+        write_hit(config.write_hit), write_miss(config.write_miss), hit_time(config.hit_time)
   {
     cache_set set(config.associativity);
     int numSets = config.cache_size / config.block_size / config.associativity;

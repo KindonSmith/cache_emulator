@@ -58,31 +58,41 @@ void Cache_System::simulate(){
     // L1 lookup
     lookup_result l1 = look_up(instructions[i], caches.at(1));
     cache_stats[1].total_accesses++;
+    // increment on hit/miss and read/write
     l1.hit ? cache_stats[1].hits++ : cache_stats[1].misses++;
     dir == "R" ? cache_stats[1].reads++ : cache_stats[1].writes++;
 
-    // L1 dirty eviction -> mark block dirty in L2
+    // L1 eviction
     if (l1.writeback_occurred) {
       cache_stats[1].writebacks++;
       caches.at(2).dirty_block(l1.wb_victim_address);
     }
 
-    // L1 WT write hit -> propagate to L2
+    // L1 write hit -> propagate to L2
     if (l1.hit && dir == "W" && caches.at(1).write_hit == WriteHitPolicy::WRITE_THROUGH) {
       caches.at(2).propagate_write(addr);
       cache_stats[1].writes_to_next_level++;
     }
 
+    // L1 miss
     if (!l1.hit) {
       // L2 lookup
       lookup_result l2 = caches.at(2).lookUp(instructions[i]);
       cache_stats[2].total_accesses++;
+      // increment hit/miss and read/write
       l2.hit ? cache_stats[2].hits++ : cache_stats[2].misses++;
       dir == "R" ? cache_stats[2].reads++ : cache_stats[2].writes++;
 
-      // L2 dirty eviction -> memory writeback
+      // L2 eviction
       if (l2.writeback_occurred) {
         cache_stats[2].writebacks++;
+      }
+
+      if (l2.hit && dir == "W" && caches.at(2).write_hit == WriteHitPolicy::WRITE_THROUGH){
+        // conceptually, this would be a write to ram.
+        // caches.at(3).propagate_write(addr)
+        cache_stats[2].writes_to_next_level++;
+        
       }
     }
   }
@@ -98,5 +108,23 @@ void Cache_System::print_simulated_stats(){
   cout << "  " << "Total accesses:       " << total_accesses << endl;
   cache_stats.at(1).print();
   cache_stats.at(2).print();
+}
+
+void Cache_System::print_analysis(){
+  // AMAT = Hit Time + Miss Rate * Miss Penalty
+  // 2 level AMAT = L1 Hit Time + L1 Miss Rate * (L2 Hit Time + L2 Miss Rate * memory_access_time)
+  auto l1_stats = cache_stats.at(1);
+  float l1_hit_time = cache_list.at(1).hit_time;
+  float l1_miss_rate = l1_stats.total_accesses > 0 ? ((float)l1_stats.misses / (float)l1_stats.total_accesses) : 0.0f;
+
+
+  auto l2_stats = cache_stats[2];
+  float l2_hit_time = cache_list.at(2).hit_time;
+  float l2_miss_rate = l2_stats.total_accesses > 0 ? ((float)l2_stats.misses / (float)l2_stats.total_accesses) : 0.0f;
+
+
+  float AMAT = l1_hit_time + l1_miss_rate * (l2_hit_time + l2_miss_rate * (float)(memory_access_time));
+  cout << "AMAT: " << AMAT << endl;
+
 }
 
