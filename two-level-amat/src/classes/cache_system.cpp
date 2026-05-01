@@ -116,15 +116,29 @@ void Cache_System::print_analysis(){
   auto l1_stats = cache_stats.at(1);
   float l1_hit_time = cache_list.at(1).hit_time;
   float l1_miss_rate = l1_stats.total_accesses > 0 ? ((float)l1_stats.misses / (float)l1_stats.total_accesses) : 0.0f;
+  float l1_hit_rate = 1.0f - l1_miss_rate;
 
-
-  auto l2_stats = cache_stats[2];
+  auto l2_stats = cache_stats.at(2);
   float l2_hit_time = cache_list.at(2).hit_time;
   float l2_miss_rate = l2_stats.total_accesses > 0 ? ((float)l2_stats.misses / (float)l2_stats.total_accesses) : 0.0f;
 
+  float AMAT = l1_hit_time + l1_miss_rate * (l2_hit_time + l2_miss_rate * (float)memory_access_time);
 
-  float AMAT = l1_hit_time + l1_miss_rate * (l2_hit_time + l2_miss_rate * (float)(memory_access_time));
-  cout << "AMAT: " << AMAT << endl;
+  cout << fixed << setprecision(2);
+  cout << "\n=== Results ===" << endl;
 
+  cout << "L1:" << endl;
+  cout << "  Accesses: " << l1_stats.total_accesses << endl;
+  cout << "  Hits: " << l1_stats.hits << "     Misses: " << l1_stats.misses << endl;
+  cout << "  Hit rate: " << (l1_hit_rate * 100.0f) << "%" << endl;
+  cout << "  Writebacks to L2: " << l1_stats.writebacks << endl;
+
+  cout << "\nL2:" << endl;
+  cout << "  Accesses: " << l2_stats.total_accesses << endl;
+  cout << "  Hits: " << l2_stats.hits << "     Misses: " << l2_stats.misses << endl;
+  cout << "  Hit rate: " << ((1.0f - l2_miss_rate) * 100.0f) << "%" << endl;
+  cout << "  Writebacks to memory: " << l2_stats.writebacks << endl;
+
+  cout << "\nAMAT: " << l1_hit_time << " + " << l1_miss_rate << " * (" << l2_hit_time << " + " << l2_miss_rate << " * " << memory_access_time << ") = " << AMAT << " cycles" << endl;
 }
 
