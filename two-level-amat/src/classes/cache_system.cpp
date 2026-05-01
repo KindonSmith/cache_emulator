@@ -35,33 +35,6 @@ void Cache_System::set_access_time(int _access_time){
   memory_access_time = _access_time;
 }
 
-void Cache_System::validate_result(lookup_result result, int cache_index, string directive){
-  auto& caches = get_cache_list();
-  if (caches.find(cache_index) == caches.end()){
-    cout << "validate_result. Cannot check result against cache that does not exist: " << cache_index << "." << endl;
-  }
-  // on hit
-  if (result.hit){
-    cache_stats[cache_index].hits++;
-    if (directive == "W"){
-      cache_stats[cache_index].writes++;
-      if (caches.at(cache_index).write_hit == WriteHitPolicy::WRITE_THROUGH){
-        cache_stats[cache_index].writes_to_next_level++;
-      }
-    }else if (directive == "R"){
-      cache_stats[cache_index].reads++;
-    }
-  // on miss 
-  }else if (!result.hit){
-    cache_stats[cache_index].misses++;
-    if (directive == "W"){
-
-    }else if (directive == "R"){
-
-    }
-  }
-
-}
 
 void Cache_System::insert_instruction(Instruction _instruction){
   if (_instruction.directive == "R" || _instruction.directive == "W"){
@@ -78,18 +51,39 @@ void Cache_System::simulate(){
   cout << "Simulating..." << endl;
   
   for(int i = 0; i < instructions.size(); i++){
-    int cache_index = 1;
-    if(caches.find(cache_index) != caches.end()){
-      lookup_result result = look_up(instructions[i], caches.at(cache_index));
-      validate_result(result, cache_index, instructions[i].directive);
-      if (!result.hit) {
-        cache_index++;
-        result = look_up(instructions[i], caches.at(cache_index));
-        validate_result(result, cache_index, instructions[i].directive);
-      }
+    total_accesses++;
+    string dir = instructions[i].directive;
+    uint32_t addr = instructions[i].address;
 
-    }else{
-      throw runtime_error("Could not find valid cache. Please check cache index configuration.");
+    // L1 lookup
+    lookup_result l1 = look_up(instructions[i], caches.at(1));
+    cache_stats[1].total_accesses++;
+    l1.hit ? cache_stats[1].hits++ : cache_stats[1].misses++;
+    dir == "R" ? cache_stats[1].reads++ : cache_stats[1].writes++;
+
+    // L1 dirty eviction -> mark block dirty in L2
+    if (l1.writeback_occurred) {
+      cache_stats[1].writebacks++;
+      caches.at(2).dirty_block(l1.wb_victim_address);
+    }
+
+    // L1 WT write hit -> propagate to L2
+    if (l1.hit && dir == "W" && caches.at(1).write_hit == WriteHitPolicy::WRITE_THROUGH) {
+      caches.at(2).propagate_write(addr);
+      cache_stats[1].writes_to_next_level++;
+    }
+
+    if (!l1.hit) {
+      // L2 lookup
+      lookup_result l2 = caches.at(2).lookUp(instructions[i]);
+      cache_stats[2].total_accesses++;
+      l2.hit ? cache_stats[2].hits++ : cache_stats[2].misses++;
+      dir == "R" ? cache_stats[2].reads++ : cache_stats[2].writes++;
+
+      // L2 dirty eviction -> memory writeback
+      if (l2.writeback_occurred) {
+        cache_stats[2].writebacks++;
+      }
     }
   }
 }
@@ -98,5 +92,11 @@ void Cache_System::print_system_config(){
   auto cache_list = get_cache_list();
   cache_list.at(1).printConfig();
   cache_list.at(2).printConfig();
+}
+
+void Cache_System::print_simulated_stats(){
+  cout << "  " << "Total accesses:       " << total_accesses << endl;
+  cache_stats.at(1).print();
+  cache_stats.at(2).print();
 }
 

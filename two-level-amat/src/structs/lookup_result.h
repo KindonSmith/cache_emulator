@@ -7,10 +7,15 @@ using namespace std;
 struct lookup_result{
   bool hit;
   bool writeback_occurred;
-  cache_block* victim;
+  uint32_t address;
+  uint32_t wb_victim_address;
 
-  lookup_result(bool _hit, bool _writeback_occurred, cache_block* _victim) : hit(_hit), writeback_occurred(_writeback_occurred),
-                victim(_victim){};
+  lookup_result(bool _hit, bool _writeback_occurred, cache_block _victim, 
+                uint32_t _address, uint32_t _victim_address) : 
+                hit(_hit), 
+                writeback_occurred(_writeback_occurred), 
+                address(_address),
+                wb_victim_address(_victim_address){};
 };
 
 

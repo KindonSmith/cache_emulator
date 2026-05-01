@@ -10,6 +10,8 @@ private:
   /* data */
   int num_caches = 2;
   int memory_access_time{};
+  int total_accesses{};
+
   map<int, Cache> cache_list;
   map<int, Stats> cache_stats;
   vector<Instruction> instruction_list;
@@ -22,9 +24,7 @@ public:
   vector<Instruction> get_instruction_list();
   void simulate();
   void set_access_time(int _access_time);
-  void validate_result(lookup_result result, int cache_index, string directive);
   void insert_instruction(Instruction instruction);
-  void print_cache_stats(int index);
   void print_system_config();
   void print_simulated_stats();
 };

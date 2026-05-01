@@ -99,7 +99,7 @@ class Cache{
     return tag1 == tag2;
   }
 
-  void updateBlock(cache_block &block){
+  void cleanBlock(cache_block &block){
     if(block.dirty) {
       // stats.writes_to_next_level++;
       // stats.writebacks++;
@@ -107,14 +107,25 @@ class Cache{
     }
   }
 
-  void loadBlock(cache_block &block, uint32_t tag){
+  void dirty_block(uint32_t address){
+    uint32_t index = getIndex(address);
+    uint32_t tag = getTag(address);
+    for (auto& block : sets[index].ways) {
+      if (block.valid && block.tag == tag) {
+        block.dirty = true;
+        return;
+      }
+    }
+  }
+
+  void load_block(cache_block &block, uint32_t tag){
     block.valid = true;
     block.tag = tag;
     block.dirty = false;
   }
 
   void wa_miss(cache_block &block, uint32_t tag){
-    loadBlock(block, tag);
+    load_block(block, tag);
     if(write_hit == WriteHitPolicy::WRITE_BACK) block.dirty = true;
   }
   void nwa_miss(cache_block &block){
@@ -131,7 +142,7 @@ class Cache{
       if(write_miss == WriteMissPolicy::NO_WRITE_ALLOCATE) nwa_miss(block);
     }else if(directive == "R"){
       // stats.reads++;
-      loadBlock(block, tag);
+      load_block(block, tag);
     }
   }
 
@@ -175,7 +186,7 @@ class Cache{
           // updateBlock(index, wayIndex);
           instruction_hit(sets[index].ways[wayIndex], tag, instruction.directive);
           sets[index].updateLRU(wayIndex);
-          return lookup_result(true, false, &sets[index].ways[wayIndex]);
+          return lookup_result(true, false, sets[index].ways[wayIndex], instruction.address, 0);
         }
       }
 
@@ -191,12 +202,29 @@ class Cache{
     // false on NWA miss. 
     */
     bool block_was_dirty = sets[index].ways[lruMaxIndex].dirty;
+    cache_block victim = sets[index].ways[lruMaxIndex];
+    uint32_t victim_address = (victim.tag << (indexBits + offsetBits)) | (index << offsetBits);
     instruction_miss(sets[index].ways[lruMaxIndex], tag, instruction.directive);
     if(write_miss != WriteMissPolicy::NO_WRITE_ALLOCATE) {
       sets[index].updateLRU(lruMaxIndex);
     }
 
-    return lookup_result(false, block_was_dirty, &sets[index].ways[lruMaxIndex]);
+    return lookup_result(false, block_was_dirty, sets[index].ways[lruMaxIndex], instruction.address, victim_address);
+  }
+
+  void propagate_write(uint32_t address){
+    uint32_t index = getIndex(address);
+    uint32_t tag = getTag(address);
+    int lruMaxIndex{};
+    int i = 0;
+    for (auto& block : sets[index].ways) {
+      if (block.valid && block.tag == tag){
+        // block found and updated
+        return;
+      }
+    }
+    // block not found
+
   }
 
 
