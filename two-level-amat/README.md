@@ -72,8 +72,10 @@ Where $MissRate_{L2}$ is the **local** miss rate (L2 misses / L2 accesses).
 |--------|-------|-------------|-------------|------|
 | cache_size_increase/small.txt | trace_rw1 | 8.33 % | 72.73 % | 35.17 Cycles |
 | cache_size_increase/medium.txt  | trace_rw1 | 75.00 % | 0.00 % | 28.50 Cycles |
+|--------|-------|-------------|-------------|------|
 | cache_size_increase/small.txt | trace_rw2 | 9.26 % | 89.80 % | 19.33 Cycles |
 | cache_size_increase/medium.txt  | trace_rw2 | 9.26 % | 89.80 % | 19.33 Cycles |
+|--------|-------|-------------|-------------|------|
 | cache_size_increase/small.txt | trace_rw3 | 91.67 % | 0.00 % | 10.17 Cycles |
 | cache_size_increase/medium.txt  | trace_rw3 | 91.67 % | 0.00 % | 10.17 Cycles |
 
