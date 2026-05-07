@@ -65,24 +65,19 @@ $$AMAT = HitTime_{L1} + MissRate_{L1} \times (HitTime_{L2} + MissRate_{L2} \time
 Where $MissRate_{L2}$ is the **local** miss rate (L2 misses / L2 accesses).
 
 ## Results
+### Working set optimization.
 
-
-### Config Matrix
-
+#### Cache Size Comparison across multiple working sets
 | Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
 |--------|-------|-------------|-------------|------|
-| default | trace_rw1 | | | |
-| default | trace_rw2 | | | |
-| default | trace_rw3 | | | |
-| tinyl1 | trace_rw1 | | | |
-| tinyl1 | trace_rw2 | | | |
-| tinyl1 | trace_rw3 | | | |
-| bigl2 | trace_rw1 | | | |
-| bigl2 | trace_rw2 | | | |
-| bigl2 | trace_rw3 | | | |
+| cache_size_increase/small.txt | trace_rw1 | 8.33 % | 72.73 % | 35.17 Cycles |
+| cache_size_increase/medium.txt  | trace_rw1 | 75.00 % | 0.00 % | 28.50 Cycles |
+| cache_size_increase/small.txt | trace_rw2 | 9.26 % | 89.80 % | 19.33 Cycles |
+| cache_size_increase/medium.txt  | trace_rw2 | 9.26 % | 89.80 % | 19.33 Cycles |
+| cache_size_increase/small.txt | trace_rw3 | 91.67 % | 0.00 % | 10.17 Cycles |
+| cache_size_increase/medium.txt  | trace_rw3 | 91.67 % | 0.00 % | 10.17 Cycles |
+
 
 ## Key Observations
 
 
-- **trace_rw2 (L1 thrashing):** ...
-- **trace_rw3 (small working set):** ...
