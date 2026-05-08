@@ -65,7 +65,7 @@ $$AMAT = HitTime_{L1} + MissRate_{L1} \times (HitTime_{L2} + MissRate_{L2} \time
 Where $MissRate_{L2}$ is the **local** miss rate (L2 misses / L2 accesses).
 
 ## Cache Hit Ratio Formula
-$$Hit_Rate = Passes{hits} \divide Passes{total}
+$$Hit_Rate = Passes{hits} \divide Passes{total}$$
 
 ## Results
 ### Working set optimization.
