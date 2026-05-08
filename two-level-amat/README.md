@@ -64,17 +64,20 @@ $$AMAT = HitTime_{L1} + MissRate_{L1} \times (HitTime_{L2} + MissRate_{L2} \time
 
 Where $MissRate_{L2}$ is the **local** miss rate (L2 misses / L2 accesses).
 
+## Cache Hit Ratio Formula
+$$Hit_Rate = Passes{hits} \divide Passes{total}
+
 ## Results
 ### Working set optimization.
 
 #### Cache Size Comparison across multiple working sets
-##### Small dynamic working set, trace_rw1. Emulates a small program doing some instructions, repeating a few of them
+##### trace_rw1: Emulates a small program doing some instructions, repeating a few of them
 | Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
 |--------|-------|-------------|-------------|------|
 | cache_size_increase/small.txt | trace_rw1 | 8.33 % | 72.73 % | 35.17 Cycles |
 | cache_size_increase/medium.txt  | trace_rw1 | 75.00 % | 0.00 % | 28.50 Cycles |
 
-##### Tiny working set, trace_rw2 and trace_rw3. Emulates a small number of repeating instructions
+##### trace_rw2 / trace_rw3: Emulates a small number of repeating instructions
 | Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
 |--------|-------|-------------|-------------|------|
 | cache_size_increase/small.txt | trace_rw2 | 9.26 % | 89.80 % | 19.33 Cycles |
@@ -82,14 +85,14 @@ Where $MissRate_{L2}$ is the **local** miss rate (L2 misses / L2 accesses).
 | cache_size_increase/small.txt | trace_rw3 | 91.67 % | 0.00 % | 10.17 Cycles |
 | cache_size_increase/medium.txt  | trace_rw3 | 91.67 % | 0.00 % | 10.17 Cycles |
 
-##### Phase locality. Emulates multiple working sets in tandem.
+##### trace_rw4: Phase locality. Emulates multiple working sets in tandem.
 | Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
 |--------|-------|-------------|-------------|------|
 | cache_size_increase/small.txt | trace_rw4 | 50.00 % | 66.67 % | 22.67 Cycles |
 | cache_size_increase/medium.txt  | trace_rw4 | 83.33 % | 0.00 % | 19.33 Cycles |
 
 
-##### Sequential. Emulates a sequence of instructions in order.
+##### trace_rw5 / trace_rw6: Sequential. Emulates a sequence of instructions in order.
 | Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
 |--------|-------|-------------|-------------|------|
 | cache_size_increase/small.txt | trace_rw5 | 0.00 % | 0.00 % | 111.00 Cycles |
