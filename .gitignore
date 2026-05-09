@@ -12,3 +12,9 @@ ASSIGNMENT.md
 
 # Debug symbols
 *.pdb
+
+# Powershell
+*.Powershell
+*.ps
+two-level-amat/src/run_write_policies.ps1
+two-level-amat/src/results_write_policies.txt
