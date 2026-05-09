@@ -206,7 +206,7 @@ class Cache{
     cache_block victim = sets[index].ways[lruMaxIndex];
     uint32_t victim_address = (victim.tag << (indexBits + offsetBits)) | (index << offsetBits);
     instruction_miss(sets[index].ways[lruMaxIndex], tag, instruction.directive);
-    if(write_miss != WriteMissPolicy::NO_WRITE_ALLOCATE) {
+    if(!(instruction.directive == "W" && write_miss == WriteMissPolicy::NO_WRITE_ALLOCATE)) {
       sets[index].updateLRU(lruMaxIndex);
     }
 
