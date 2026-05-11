@@ -62,20 +62,21 @@ R 0x1040
 
 $$AMAT = HitTime_{L1} + MissRate_{L1} \times (HitTime_{L2} + MissRate_{L2} \times MemoryAccessTime)$$
 
-Where $MissRate_{L2}$ is the **local** miss rate (L2 misses / L2 accesses).
+
 
 ## Cache Hit Ratio derivation
 $$HitRate = \frac{UniqueInstructions_{count} \times (Passes_{total} - 1)}{UniqueInstructions_{count} \times Passes_{total}}$$
 
 # Results
-## trace_rw1: Emulates a small program doing some instructions, repeating a few of them
+## Emulation
+### Small program doing some instructions, repeating a few of them. trace_rw1
 | Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
 |--------|-------|-------------|-------------|------|
 | cache_size_increase/small.txt | trace_rw1 | 8.33 % | 72.73 % | 35.17 Cycles |
 | cache_size_increase/medium.txt  | trace_rw1 | 75.00 % | 0.00 % | 28.50 Cycles |
 
 
-## trace_rw2 / trace_rw3: Emulates a small number of repeating instructions
+### Small number of repeating instructions. trace_rw2 | trace_rw3
 | Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
 |--------|-------|-------------|-------------|------|
 | cache_size_increase/small.txt | trace_rw2 | 9.26 % | 89.80 % | 19.33 Cycles |
@@ -84,15 +85,26 @@ $$HitRate = \frac{UniqueInstructions_{count} \times (Passes_{total} - 1)}{Unique
 | cache_size_increase/medium.txt  | trace_rw3 | 91.67 % | 0.00 % | 10.17 Cycles |
 
 
-## trace_rw4: Phase locality. Emulates multiple working sets in tandem.
+## Phase locality. Multiple working sets in tandem. trace_rw4
 | Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
 |--------|-------|-------------|-------------|------|
 | cache_size_increase/small.txt | trace_rw4 | 50.00 % | 66.67 % | 22.67 Cycles |
 | cache_size_increase/medium.txt  | trace_rw4 | 83.33 % | 0.00 % | 19.33 Cycles |
 
-## Sequential program emulation. Testing sequentially ordered instructions, which are known to cause thrashing.
+## Sequentially ordered instructions. trace_rw5 | trace_rw6 | trace_rw7
 
-### Cache Size Data
+## Cache Analysis
+Emulating a cache in C++ gives us a good baseline to see how modifications to a Cache change performance. Though we're only measuring a single metric for any given configuration, the Average Memory Access Time (AMAT), we can establish some ideas about how to optimize a cache's performance across multiple working sets. We will be establishing a 'benchmark' for this 2-level cache emulator, identifying optimal combinations of configuration. I've also included some analagous descriptors comparing these modifications to a bookshelf. The values we will be looking at are as follows:
+- Cache Size *(The size of the bookshelf)*
+- Associativity *(The number of slots on a shelf)*
+- Block Size *(The size of the slot a book will fit in)*
+- Write Hit Policy *(If put a book into the shelf, what do we do if it's already there?)*
+- Write Miss Policy *(If we put a book into the shelf, what do we do if it's not there?)*
+
+An important absence in the above is the number of sets in each cache, analagous to the number of shelves in a bookshelf. This is because the number of sets is derived, not configured, with the following formula:
+$$NumSets = \frac{CacheSize}{BlockSize \times Associativity} $$
+
+### Cache Size Changes on Sequential Working set
 | Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
 |--------|-------|-------------|-------------|------|
 | cache_size_increase/small.txt | trace_rw5 | 0.00 % | 0.00 % | 111.00 Cycles |
@@ -101,12 +113,44 @@ $$HitRate = \frac{UniqueInstructions_{count} \times (Passes_{total} - 1)}{Unique
 | cache_size_increase/gigantic.txt  | trace_rw5 | 50.00 % | 0.00 % | 56.00 Cycles |
 | cache_size_increase/gigantic.txt  | trace_rw6 | 87.50 % | 0.00 % | 14.75 Cycles |
 
-### Cache Size Analysis
-The small.txt cache config tests an exceedingly small L1/L2 cache size of (L1 128 / L2 512) and has a 100% miss rate. As cache size decreases towards base data sizes, it becomes less useful. In this sequential test, we are never able to hold enough to hit with small.txt cache sizing. We are paying the access penalty of missing L1 (1 Cycle), missing L2 (10 Cycles), and accessing RAM (100 Cycles) every instruction.
+The small.txt cache config tests an exceedingly small L1/L2 cache size of (L1 128 / L2 512) and has a 100% miss rate. We can derive this behavior by demonstrating the number of sets in L1 and L2 small.txt as:
+$$ Sets_{L1} = \frac{128}{16 \times 4}$$
+$$ Sets_{L1} = 2 $$
 
-When increasing cache size in medium.txt (L1 1024 / L2 4096), we see substantial AMAT improvement from 111.00 Cycles to 61.00 Cycles with L2 Cache hits explaining the difference. We can conclude that the medium.txt L2 Cache Size of 4096 is large enough to contain the working set.
+$$ Sets_{L2} = \frac{512}{32 \times 8}$$
+$$ Sets_{L2} = 2 $$
 
-Since we're seeing exactly 50% hit rate here, we can verify number of passes. trace_rw5 contains 40 unique instructions. We can calculate the number of passes in medium.txt by using the formula: 
+This configuration has 2 sets with 4 ways each in both L1 and L2, a total of 16 unique blocks in the entire Cache. At the time of the 17th sequential instruction, the 1st is guaranteed to be kicked out of the cache. On every instruction, we are paying the access penalty of missing L1 (1 Cycle), missing L2 (10 Cycles), and accessing RAM (100 Cycles) every instruction.
+
+When increasing cache size in medium.txt (L1 1024 / L2 4096), we see substantial AMAT improvement from 111.00 Cycles to 61.00 Cycles with L2 Cache hits explaining the difference. We can quickly verify this by calculating the number of sets and total possible addresses:
+$$ Sets_{L1} = \frac{1024}{16 \times 4}$$
+$$ Sets_{L1} = 16 $$
+
+$$ Sets_{L2} = \frac{4096}{16 \times 4}$$
+$$ Sets_{L2} = 64 $$
+
+In theory, the L1 Cache now has 16 sets with 4 ways each, a total of 48 unique blocks. This has the potential to hold all 40 unique instructions, so why are we seeing a 0% hitrate in L1 and 50% hitrate in L2 here? To start, the addresses in trace_rw5.txt increment by 0x20 every time, 32 bytes, or 2 blocks. Since our address calculation is based on a number of bits equal to the number of sets, we must look at our addresses and what sets they map to:
+|Address|Bits [7:4]|Set|
+|------|------|---| 
+| 0x000 |	0000	| 0 | 
+| 0x020	| 0010 | 	2
+| 0x040	| 0100	| 4
+| 0x060	| 0110 | 	6
+| 0x080	| 1000	| 8
+| 0x0A0	| 1010 |  	10
+| 0x0C0	| 1100 | 	12 | 
+| 0x0E0	| 1110	| 14 | 
+| 0x100	| 0000	| 0 | 
+
+The 9th instruction returns to Set 0. This happens on the 9th, 17th, 25th, and 33rd instructions, a total of 5 times. If we were to look at our cache before the final 8 instructions, you would see 8 sets of 4 ways completely full with 32 unique blocks. The final 8 instructions are the inserted, missing and overwriting the least recently used item in each set. This then cascades on the second pass through the same 40 unique instructions.
+
+We can conclude that the capacity to hold a working set does not give confidence of a high performance.
+
+While the L2 Cache's only change is size, the key reason it shows a 50% hitrate compared to L1's 0% hitrate is due to the derived number of sets, a total of 64 sets. The same looping behavior can still exist, but would happen on 0x400 instead of 0x100.
+
+We can conclude that even if a cache has sufficient size to contain a working set, derived number of sets is important to AMAT performance. Since this is derived, we then can say that the Block Size and Associativity are of high importance.
+
+I want to verify the 50% hit rate here, so let's look at the number of passes. trace_rw5 contains 40 unique instructions. We can calculate the number of passes in medium.txt by using the formula: 
 - Hit Rate = N ( k - 1 ) / N * k
 Where N is the number of unique instructions and k is the number of passes.
 
