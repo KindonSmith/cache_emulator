@@ -16,7 +16,7 @@ g++ main.cpp classes/cache_system.cpp -o amat.exe
 ```
 
 ## Configuration Format
-#### Write policies
+### Write policies
 Valid:
 - wb + wa
 - wt + wa
@@ -67,16 +67,16 @@ $$AMAT = HitTime_{L1} + MissRate_{L1} \times (HitTime_{L2} + MissRate_{L2} \time
 ## Cache Hit Ratio derivation
 $$HitRate = \frac{UniqueInstructions_{count} \times (Passes_{total} - 1)}{UniqueInstructions_{count} \times Passes_{total}}$$
 
-# Results
-## Emulation
-### Small program doing some instructions, repeating a few of them. trace_rw1
+## Results
+### Emulation
+#### Small program doing some instructions, repeating a few of them. trace_rw1
 | Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
 |--------|-------|-------------|-------------|------|
 | cache_size_increase/small.txt | trace_rw1 | 8.33 % | 72.73 % | 35.17 Cycles |
 | cache_size_increase/medium.txt  | trace_rw1 | 75.00 % | 0.00 % | 28.50 Cycles |
 
 
-### Small number of repeating instructions. trace_rw2 | trace_rw3
+#### Small number of repeating instructions. trace_rw2 | trace_rw3
 | Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
 |--------|-------|-------------|-------------|------|
 | cache_size_increase/small.txt | trace_rw2 | 9.26 % | 89.80 % | 19.33 Cycles |
@@ -85,15 +85,15 @@ $$HitRate = \frac{UniqueInstructions_{count} \times (Passes_{total} - 1)}{Unique
 | cache_size_increase/medium.txt  | trace_rw3 | 91.67 % | 0.00 % | 10.17 Cycles |
 
 
-## Phase locality. Multiple working sets in tandem. trace_rw4
+#### Phase locality. Multiple working sets in tandem. trace_rw4
 | Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
 |--------|-------|-------------|-------------|------|
 | cache_size_increase/small.txt | trace_rw4 | 50.00 % | 66.67 % | 22.67 Cycles |
 | cache_size_increase/medium.txt  | trace_rw4 | 83.33 % | 0.00 % | 19.33 Cycles |
 
-## Sequentially ordered instructions. trace_rw5 | trace_rw6 | trace_rw7
+#### Sequentially ordered instructions. trace_rw5 | trace_rw6 | trace_rw7
 
-## Cache Analysis
+### Cache Analysis
 Emulating a cache in C++ gives us a good baseline to see how modifications to a Cache change performance. Though we're only measuring the Average Memory Access Time (AMAT), we can establish some ideas about how to optimize a cache's performance across multiple working sets. We will be establishing a 'benchmark' for this 2-level cache emulator.
 
 This emulator supports the following configurable traits. I've also included some analagous descriptors comparing these modifications to a bookshelf. The values we will be looking at are as follows:
@@ -106,7 +106,7 @@ This emulator supports the following configurable traits. I've also included som
 These can be configured on a per-cache-level basis. An important absence in the above is the number of sets, analagous to the number of shelves in a bookshelf. This is because the number of sets is derived, not configured, with the following formula:
 $$NumSets = \frac{CacheSize}{BlockSize \times Associativity} $$
 
-### Cache Size Changes on Sequential Working set
+#### Cache Size Changes on Sequential Working set
 | Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
 |--------|-------|-------------|-------------|------|
 | cache_size_increase/small.txt | trace_rw5 | 0.00 % | 0.00 % | 111.00 Cycles |
@@ -115,7 +115,7 @@ $$NumSets = \frac{CacheSize}{BlockSize \times Associativity} $$
 | cache_size_increase/gigantic.txt  | trace_rw5 | 50.00 % | 0.00 % | 56.00 Cycles |
 | cache_size_increase/gigantic.txt  | trace_rw6 | 87.50 % | 0.00 % | 14.75 Cycles |
 
-#### small.txt
+##### small.txt
 
 These tests are run using trace_rw5, a 40 unique-instruction sequential trace. This is important to know when analyzing the results of these configurations.
 
@@ -140,7 +140,7 @@ L2 does not fare any better, as it is guaranteed to kick out the 1st block the m
 Ths also a best-case-scenario, assuming each set is filled up before we hit our conflict misses. Some sets can be used more, or some not at all. We will explore this further in the next section.
 
 
-#### medium.txt
+##### medium.txt
 
 | Cache | Size (Kb) | Block Size (Kb) | Associativity | Write Hit Policy | Write Miss Policy | Hit Time |
 |--|--|--|--|--|--|--|
@@ -193,13 +193,13 @@ $$k = 2 $$
 
 Since K = 2, we've confirmed this is running 2 passes, so the working set has 40 compulsory misses the first loop, then 40 hits the second in L2. This meets our 50% hit rate exactly and confirms our cache is behving as expected.
 
-#### large.txt 
+##### large.txt 
 | Cache | Size (Kb) | Block Size (Kb) | Associativity | Write Hit Policy | Write Miss Policy | Hit Time |
 |--|--|--|--|--|--|--|
 | L1 | 4096 | 16 | 4 | wb | wa | 1 |
 | L2 | 16384 | 16 | 4 | wb | wa | 10 |
 
-#### gigantic.txt
+##### gigantic.txt
 | Cache | Size (Kb) | Block Size (Kb) | Associativity | Write Hit Policy | Write Miss Policy | Hit Time |
 |--|--|--|--|--|--|--|
 | L1 | 16384 | 16 | 4 | wb | wa | 1 |
@@ -223,8 +223,8 @@ In both calculations, we see K = 1 / (1 - hit rate). As hit rate approaches 1 (1
 
 We can conclude that we just need a cache of sufficient size for sequential working sets. Further cache size increases only yield AMAT benefits if they cause a cache level to hit the working set's threshold.
 
-### Write Policy Data
-#### trace_rw7
+#### Write Policy Data
+##### trace_rw7
 | Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
 |--------|-------|-------------|-------------|------|
 | write_policies/wb_wa_small | trace_rw7 | 0.00 % | 0 %  | 111.00 Cycles |
@@ -242,7 +242,7 @@ We can conclude that we just need a cache of sufficient size for sequential work
 
 
 
-### Write Policy Analysis
+#### Write Policy Analysis
 We've established that for this sequential set, cache size increases only provide AMAT benefits when they push cache levels over the working set thresholds. This axiom holds with varying write policies - the smallest caches in a sequential working set have the maximum AMAT of 111.00 Cycles, and while larger caches show clear improvement, further size increases do nothing to improve AMAT.
 
 To understand why *NWA* write miss behavior in *wt_nwa_med*, *wt_nwa*, and *wt_nwa_large*, which share an L2 HitRate of 43.75% and AMAT of 23.50 Cycles, we need to understand the working set. Because this is a sequential working set with 40 unique instructions (20 Reads, 20 Writes), our HitRate with *NWA* policy is capped at 
@@ -265,7 +265,7 @@ $$ HitRate = 1 - .5625 = .4375 = 43.75 \% $$
 
 Our derived HitRate exactly matches our emulator's achieved hitrate for both *wt_nwa* and *wt_nwa_large* exactly. Our expectations of an *NWA* write policy align with these observations; *NWA* is intended to avoid polluting the cache with write data that won't be re-read. The following section will explore this further by varying write policies between L1 and L2 caches.
 
-#### trace_rw7 continued
+##### trace_rw7 continued
 | Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
 |--------|-------|-------------|-------------|------|
 | write_policies/wtnwa_l1_wbwa_l2_large | trace_rw7 | 43.75 % | 77.78 %  | 19.12 Cycles |
@@ -281,7 +281,7 @@ The reasoning is clear when you look at L1 and L2 HitRates run with *wtnwa_l1_wb
 
 In a single sequential working set, the L1 cache should be configured with a Write-Allocate write policy.
 
-### Associativity Analysis
+#### Associativity Analysis
 When adjusting the associativity of both L1 and L2 caches, we see better AMAT times with lower associativity with this sequential set.
 
 | Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
