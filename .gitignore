@@ -15,6 +15,6 @@ ASSIGNMENT.md
 
 # Powershell
 *.Powershell
-*.ps
+*.ps1
 two-level-amat/src/run_write_policies.ps1
 two-level-amat/src/results_write_policies.txt

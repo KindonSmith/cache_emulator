@@ -1,0 +1,72 @@
+=== Config: gig_block.txt ===
+Simulating...
+
+=== Results ===
+L1:
+  Accesses: 320
+  Hits: 160     Misses: 160
+  Hit rate: 50.00%
+  Writebacks to L2: 144
+
+L2:
+  Accesses: 160
+  Hits: 150     Misses: 10
+  Hit rate: 93.75%
+  Writebacks to memory: 0
+
+AMAT: 1.00 + 0.50 * (10.00 + 0.06 * 100) = 9.12 cycles
+
+=== Config: large_block.txt ===
+Simulating...
+
+=== Results ===
+L1:
+  Accesses: 320
+  Hits: 0     Misses: 320
+  Hit rate: 0.00%
+  Writebacks to L2: 144
+
+L2:
+  Accesses: 320
+  Hits: 300     Misses: 20
+  Hit rate: 93.75%
+  Writebacks to memory: 0
+
+AMAT: 1.00 + 1.00 * (10.00 + 0.06 * 100) = 17.25 cycles
+
+=== Config: med_block.txt ===
+Simulating...
+
+=== Results ===
+L1:
+  Accesses: 320
+  Hits: 0     Misses: 320
+  Hit rate: 0.00%
+  Writebacks to L2: 144
+
+L2:
+  Accesses: 320
+  Hits: 280     Misses: 40
+  Hit rate: 87.50%
+  Writebacks to memory: 0
+
+AMAT: 1.00 + 1.00 * (10.00 + 0.12 * 100) = 23.50 cycles
+
+=== Config: small_block.txt ===
+Simulating...
+
+=== Results ===
+L1:
+  Accesses: 320
+  Hits: 0     Misses: 320
+  Hit rate: 0.00%
+  Writebacks to L2: 144
+
+L2:
+  Accesses: 320
+  Hits: 280     Misses: 40
+  Hit rate: 87.50%
+  Writebacks to memory: 0
+
+AMAT: 1.00 + 1.00 * (10.00 + 0.12 * 100) = 23.50 cycles
+

@@ -392,3 +392,44 @@ $$ Hit rate = 1 - 65.00 $$
 $$ Hit rate = 35.00 $$
 
 This also exactly matches the simulated L1 hitrate of our 2way.txt config.
+
+#### Block Size Analysis
+When adjusting the block size of both L1 and L2 caches, we see AMAT reduction from our reference config file, and only when we meet the reference config files Block Size of L1 32KB / L2 64 KB do we match the AMAT of 17.25 Cycles. Increasing the Block Size further in gig_block.txt yields a significant AMAT improvement, jumping from 17.25 cycles to 9.12 Cycles, a linear jump.
+
+- large_block: **L1 32KB / L2 64KB**
+- gig_block: **L1 64KB / L2 128KB**
+- ins_block: **L1 128KB / L2 256KB**
+- super_ins_block: **L1 256KB / L2 512KB**
+
+| Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
+|--------|-------|-------------|-------------|------|
+| reference_config.txt | trace_rw7 | 00.00 % | 93.75 %  | 17.25 Cycles |
+| block_size_increase/small_block.txt | trace_rw7 | 00.00 % | 87.50 %  | 23.50 Cycles |
+| block_size_increase/med_block.txt | trace_rw7 | 00.00 % | 87.50 %  | 23.50 Cycles |
+| block_size_increase/large_block.txt | trace_rw7 | 00.00 % | 93.75 %  | 17.25 Cycles |
+| block_size_increase/gig_block.txt | trace_rw7 | 50.00 % | 93.75 %  | 9.12 Cycles |
+| block_size_increase/ins_block.txt | trace_rw7 | 75.00 % | 93.75 %  | 5.06 Cycles |
+| block_size_increase/super_ins_block.txt | trace_rw7 | 87.50 % | 92.50 %  | 3.19 Cycles |
+| block_size_increase/ludi_block.txt | trace_rw7 | 92.50 % | 91.67 %  | 2.38 Cycles |
+
+
+We see dramatic reductions in AMAT, but only once block size starts passing threshholds for the input trace. Block size increases demonstrate spatial locality. trace_rw7.txt is a set of sequential instructions, so when we have larger blocks being fetched, they often contain the program's data for the next instruction.
+
+##### ludi_block.txt
+This config file is an outlier for a few reasons. In order to to even test this config, with an L1 Cache Size of 1024KB and Block Size of 512KB, I had to cut the L1 Associativity from 4 to 2. When we do so, we see an L1 Hit Rate of 92.50%. This number is above my expected absolute cap of 87.50% for L1 Hit Rate. I believe this cap due to 40 unique instructions in a set of 320 total instructions, requiring 40 compulsory misses before a hit (87.50%). This number, 92.50%, demonstrates fewer than 40 compulsory misses.
+
+If we know each instruction is 32KB, we can determine that 16 instructions fit in each 512KB block. To avoid compulsory misses, this config must be utilizing spatial locality.The following chart gives a visual to what's happening. One compulsory miss per 16 instructions, and with 40 instructions, we're seeing 3 compulsory misses per pass. 8 total passes, means 24 compulsory misses, which exactly matches our observed behavior.
+
+|Instruction | Result | Set |
+|------|------|---| 
+| 1 |	Miss	| 0 | 
+| 2 |	Hit	| 0 | 
+| 3 |	Hit	| 0 | 
+| ... |	...	| ... |
+| 17 |	Miss	| 1 |  
+| 17 |	Hit	| 1 |  
+| 17 |	Hit	| 1 |  
+| ... |	...	| ... |
+| 33 |	Miss	| 0 |  
+| 34 |	Hit	| 0 |  
+| 35 |	Hit	| 0 |  

@@ -13,7 +13,7 @@ Built as prep for Georgia Tech's OMSCS program, focusing on C++ systems programm
 | 2 | [4-way-set-associative-lru](./4-way-set-associative-lru) | Set-associative ways, LRU replacement |
 | 3 | [configurable-cache-set-associative-lru](./configurable-cache-set-associative-lru) | CLI runtime configuration |
 | 4 | [write-policies](./write-policies) | Write-back / write-through + write-allocate / no-write-allocate policies, dirty bit tracking |
-| 5 | [two-level-amat](./two-level-amat) | ... |
+| 5 | [two-level-amat](./two-level-amat) | AMAT analysis on a two-level cache. |
 
 ### Prerequisites
 - g++ / GCC
