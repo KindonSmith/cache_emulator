@@ -418,7 +418,7 @@ We see dramatic reductions in AMAT, but only once block size starts passing thre
 ##### ludi_block.txt
 This config file is an outlier for a few reasons. In order to to even test this config, with an L1 Cache Size of 1024KB and Block Size of 512KB, I had to cut the L1 Associativity from 4 to 2. When we do so, we see an L1 Hit Rate of 92.50%. This number is above my expected absolute cap of 87.50% for L1 Hit Rate. I believe this cap due to 40 unique instructions in a set of 320 total instructions, requiring 40 compulsory misses before a hit (87.50%). This number, 92.50%, demonstrates fewer than 40 compulsory misses.
 
-If we know each instruction is 32KB, we can determine that 16 instructions fit in each 512KB block. To avoid compulsory misses, this config must be utilizing spatial locality.The following chart gives a visual to what's happening. One compulsory miss per 16 instructions, and with 40 instructions, we're seeing 3 compulsory misses per pass. 8 total passes, means 24 compulsory misses, which exactly matches our observed behavior.
+If we know each instruction is 32KB, we can determine that 16 instructions fit in each 512KB block. To avoid compulsory misses, this config must be utilizing spatial locality.The following chart gives a visual to what's happening. One compulsory miss per 16 instructions, and with 40 instructions, we're seeing 3 compulsory misses on the first pass, then 3 conflict misses on each remaining pass. 8 total passes, means 24 misses, which exactly matches our observed behavior.
 
 |Instruction | Result | Set |
 |------|------|---| 
