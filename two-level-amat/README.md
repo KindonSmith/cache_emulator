@@ -389,7 +389,6 @@ $$ Miss rate = \frac{(Misses_{compulsory} + Misses_{conflict})}{TotalAccesses} $
 $$ Miss rate = \frac{40 + 24 * 7}{320} $$
 $$ Miss rate = \frac{208}{320} $$
 $$ Miss rate = 65.00 $$
-------------------
 $$ Hit rate = 1 - 65.00 $$
 $$ Hit rate = 35.00 $$
 
