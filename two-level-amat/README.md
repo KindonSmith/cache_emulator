@@ -2,6 +2,21 @@
 
 Simulates a two-level (L1 + L2) cache hierarchy with configurable write policies and computes **Average Memory Access Time (AMAT)**.
 
+## Table of Contents
+- [Build](#build)
+- [Usage](#usage)
+- [Configuration Format](#configuration-format)
+- [Trace Format](#trace-format)
+- [AMAT Formula](#amat-formula)
+- [Cache Hit Ratio derivation](#cache-hit-ratio-derivation)
+- [Cache Analysis](#cache-analysis)
+  - [Key Findings](#key-findings)
+  - [Cache Size Changes on Sequential Working set](#cache-size-changes-on-sequential-working-set)
+  - [Write Policy Data](#write-policy-data)
+  - [Write Policy Analysis](#write-policy-analysis)
+  - [Associativity Analysis](#associativity-analysis)
+  - [Block Size Analysis](#block-size-analysis)
+
 ## Build
 
 ```bash
@@ -67,44 +82,26 @@ $$AMAT = HitTime_{L1} + MissRate_{L1} \times (HitTime_{L2} + MissRate_{L2} \time
 ## Cache Hit Ratio derivation
 $$HitRate = \frac{UniqueInstructions_{count} \times (Passes_{total} - 1)}{UniqueInstructions_{count} \times Passes_{total}}$$
 
-## Results
-### Emulation
-#### Small program doing some instructions, repeating a few of them. trace_rw1
-| Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
-|--------|-------|-------------|-------------|------|
-| cache_size_increase/small.txt | trace_rw1 | 8.33 % | 72.73 % | 35.17 Cycles |
-| cache_size_increase/medium.txt  | trace_rw1 | 75.00 % | 0.00 % | 28.50 Cycles |
 
-
-#### Small number of repeating instructions. trace_rw2 | trace_rw3
-| Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
-|--------|-------|-------------|-------------|------|
-| cache_size_increase/small.txt | trace_rw2 | 9.26 % | 89.80 % | 19.33 Cycles |
-| cache_size_increase/medium.txt  | trace_rw2 | 9.26 % | 89.80 % | 19.33 Cycles |
-| cache_size_increase/small.txt | trace_rw3 | 91.67 % | 0.00 % | 10.17 Cycles |
-| cache_size_increase/medium.txt  | trace_rw3 | 91.67 % | 0.00 % | 10.17 Cycles |
-
-
-#### Phase locality. Multiple working sets in tandem. trace_rw4
-| Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
-|--------|-------|-------------|-------------|------|
-| cache_size_increase/small.txt | trace_rw4 | 50.00 % | 66.67 % | 22.67 Cycles |
-| cache_size_increase/medium.txt  | trace_rw4 | 83.33 % | 0.00 % | 19.33 Cycles |
-
-#### Sequentially ordered instructions. trace_rw5 | trace_rw6 | trace_rw7
-
-### Cache Analysis
+## Cache Analysis
 Emulating a cache in C++ gives us a good baseline to see how modifications to a Cache change performance. Though we're only measuring the Average Memory Access Time (AMAT), we can establish some ideas about how to optimize a cache's performance across multiple working sets. We will be establishing a 'benchmark' for this 2-level cache emulator.
 
-This emulator supports the following configurable traits. I've also included some analagous descriptors comparing these modifications to a bookshelf. The values we will be looking at are as follows:
+This emulator supports the following configurable traits. I've also included some analogous descriptors comparing these modifications to a bookshelf. The values we will be looking at are as follows:
 - Cache Size *(The size of the bookshelf)*
 - Associativity *(The number of slots on a shelf)*
 - Block Size *(The size of the slot a book will fit in)*
 - Write Hit Policy *(If put a book into the shelf, what do we do if it's already there?)*
 - Write Miss Policy *(If we put a book into the shelf, what do we do if it's not there?)*
 
-These can be configured on a per-cache-level basis. An important absence in the above is the number of sets, analagous to the number of shelves in a bookshelf. This is because the number of sets is derived, not configured, with the following formula:
+These can be configured on a per-cache-level basis. An important absence in the above is the number of sets, analogous to the number of shelves in a bookshelf. This is because the number of sets is derived, not configured, with the following formula:
 $$NumSets = \frac{CacheSize}{BlockSize \times Associativity} $$
+
+### Key Findings:
+- Cache size only improves AMAT once it exceeds the working set's footprint; once a level is big enough to hold the whole working set, further size increases give no additional benefit (see: quadrupling a track doesn't make you run a faster 100m).
+- Raw capacity isn't the whole story: the *derived* number of sets determines whether a working set actually spreads across the cache. A cache can have enough total bytes to hold a working set and still thrash if too few sets exist for the access pattern.
+- Write policy matters most at L1. A No-Write-Allocate (NWA) policy at L1 caps the achievable hit rate at the read-only fraction of accesses in a mixed read/write workload; L1 should be Write-Allocate (WA) unless writes are known to be non-reused.
+- Associativity isn't automatically better. For this sequential/looping access pattern, lower associativity (more sets) outperformed higher associativity (fewer sets, more ways), since more sets reduced aliasing/conflict misses.
+- Increasing block size can push the measured hit rate *above* the naive "40 compulsory misses" theoretical floor. Larger blocks coalesce multiple sequential addresses into a single fetch, converting what would be compulsory misses into spatial-locality hits.
 
 #### Cache Size Changes on Sequential Working set
 | Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
@@ -119,7 +116,7 @@ $$NumSets = \frac{CacheSize}{BlockSize \times Associativity} $$
 
 These tests are run using trace_rw5, a 40 unique-instruction sequential trace. This is important to know when analyzing the results of these configurations.
 
-| Cache | Size (Kb) | Block Size (Kb) | Associativity | Write Hit Policy | Write Miss Policy | Hit Time |
+| Cache | Size (bytes) | Block Size (bytes) | Associativity | Write Hit Policy | Write Miss Policy | Hit Time |
 |--|--|--|--|--|--|--|
 | L1 | 128 | 16 | 4 | wb | wa | 1 |
 | L2 | 512 | 16 | 4 | wb | wa | 10 |
@@ -137,12 +134,12 @@ This configuration has 2 sets with 4 ways each in both L1 and 8 sets with 4 ways
 
 L2 does not fare any better, as it is guaranteed to kick out the 1st block the moment the 33rd unique block is encountered, leading to the same type of conflict misses.
 
-Ths also a best-case-scenario, assuming each set is filled up before we hit our conflict misses. Some sets can be used more, or some not at all. We will explore this further in the next section.
+This is also a best-case scenario, assuming each set is filled up before we hit our conflict misses. Some sets can be used more, or some not at all. We will explore this further in the next section.
 
 
 ##### medium.txt
 
-| Cache | Size (Kb) | Block Size (Kb) | Associativity | Write Hit Policy | Write Miss Policy | Hit Time |
+| Cache | Size (bytes) | Block Size (bytes) | Associativity | Write Hit Policy | Write Miss Policy | Hit Time |
 |--|--|--|--|--|--|--|
 | L1 | 1024 | 16 | 4 | wb | wa | 1 |
 | L2 | 4096 | 16 | 4 | wb | wa | 10 |
@@ -172,7 +169,7 @@ The L1 Cache now has 16 sets with 4 ways each, a total of 48 unique blocks, whic
 
 The 9th instruction returns to Set 0. This happens on the 9th, 17th, 25th, and 33rd instructions, a total of 5 times. If we were to look at our cache before the final 8 instructions, you would see 8 sets of 4 ways completely full with 32 unique blocks. The final 8 instructions are the inserted, missing and overwriting the least recently used item in each set.
 
-We can conclude that the capacity to hold a working set does not give confidence of a high performance. The L1 cache only has half of it's sets being utilized by the program.
+We can conclude that the capacity to hold a working set does not give confidence of a high performance. The L1 cache only has half of its sets being utilized by the program.
 
 The L2 Cache's only change is size, but is now seeing a 50% hit rate. The key difference from L1's 0% hitrate is due to the derived number of sets, a total of 64 sets. The same looping behavior still exists, but would happen on 0x400 instead of 0x100.
 
@@ -191,16 +188,16 @@ $$k - .50 * k = 1$$
 $$k * .50 = 1$$
 $$k = 2 $$
 
-Since K = 2, we've confirmed this is running 2 passes, so the working set has 40 compulsory misses the first loop, then 40 hits the second in L2. This meets our 50% hit rate exactly and confirms our cache is behving as expected.
+Since K = 2, we've confirmed this is running 2 passes, so the working set has 40 compulsory misses the first loop, then 40 hits the second in L2. This meets our 50% hit rate exactly and confirms our cache is behaving as expected.
 
 ##### large.txt 
-| Cache | Size (Kb) | Block Size (Kb) | Associativity | Write Hit Policy | Write Miss Policy | Hit Time |
+| Cache | Size (bytes) | Block Size (bytes) | Associativity | Write Hit Policy | Write Miss Policy | Hit Time |
 |--|--|--|--|--|--|--|
 | L1 | 4096 | 16 | 4 | wb | wa | 1 |
 | L2 | 16384 | 16 | 4 | wb | wa | 10 |
 
 ##### gigantic.txt
-| Cache | Size (Kb) | Block Size (Kb) | Associativity | Write Hit Policy | Write Miss Policy | Hit Time |
+| Cache | Size (bytes) | Block Size (bytes) | Associativity | Write Hit Policy | Write Miss Policy | Hit Time |
 |--|--|--|--|--|--|--|
 | L1 | 16384 | 16 | 4 | wb | wa | 1 |
 | L2 | 65536 | 16 | 4 | wb | wa | 10 |
@@ -394,12 +391,16 @@ $$ Hit rate = 35.00 $$
 This also exactly matches the simulated L1 hitrate of our 2way.txt config.
 
 #### Block Size Analysis
-When adjusting the block size of both L1 and L2 caches, we see AMAT reduction from our reference config file, and only when we meet the reference config files Block Size of L1 32KB / L2 64 KB do we match the AMAT of 17.25 Cycles. Increasing the Block Size further in gig_block.txt yields a significant AMAT improvement, jumping from 17.25 cycles to 9.12 Cycles, a linear jump.
+When increasing the block size of both L1 and L2 caches, we see an initial stall in AMAT, with a slight AMAT increase from 17.25 Cycles to 23.50 Cycles. As block size increased in gig_block.txt to double the reference_config.txt (64 bytes from 32 bytes), we see a significant 8.13 Cycle AMAT reduction (17.25 Cycles  to 9.12 Cycles). 
 
-- large_block: **L1 32KB / L2 64KB**
-- gig_block: **L1 64KB / L2 128KB**
-- ins_block: **L1 128KB / L2 256KB**
-- super_ins_block: **L1 256KB / L2 512KB**
+This dramatic trend continues with another doubling from gig_block.txt to ins_block.txt, seeing an AMAT improvement of 4.06 Cycles (9.12 Cycles to 5.06 Cycles). This trend slowed with another doubling from ins_block.txt to super_ins_block.txt and then ludi_block.txt, with only 2.13 Cycle and .81 Cycle AMAT reductions respectively.
+
+
+- reference_config: **L1 32 / L2 64**
+- large_block: **L1 32 / L2 64**
+- gig_block: **L1 64 / L2 128**
+- ins_block: **L1 128 / L2 256**
+- super_ins_block: **L1 256 / L2 512**
 
 | Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
 |--------|-------|-------------|-------------|------|
@@ -412,24 +413,32 @@ When adjusting the block size of both L1 and L2 caches, we see AMAT reduction fr
 | block_size_increase/super_ins_block.txt | trace_rw7 | 87.50 % | 92.50 %  | 3.19 Cycles |
 | block_size_increase/ludi_block.txt | trace_rw7 | 92.50 % | 91.67 %  | 2.38 Cycles |
 
+##### What's happening:
+A sequential instruction set is analogous to a book series that gets put on the shelf, in order, together, when a program is downloaded. When we go to pull Volume A off the shelf, we're actually pulling a small box (the Block) with all the volumes it has. The bigger the Block Size, the more books get pulled with Volume A when we need it. So with sufficient Block Size, more volumes get pulled when we pull Volume A. When we need Volume B, Volume C, and so on, there's a higher likelihood it's already in front of us.
 
-We see dramatic reductions in AMAT, but only once block size starts passing threshholds for the input trace. Block size increases demonstrate spatial locality. trace_rw7.txt is a set of sequential instructions, so when we have larger blocks being fetched, they often contain the program's data for the next instruction.
+In the above, when gig_block.txt runs, the block size is of sufficient size to allow two instructions per block, so when we call Instruction 1, we have a compulsory miss, then Instruction 2 is a hit. Instruction 3 miss, Instruction 4 hit... and so on.
 
-##### ludi_block.txt
-This config file is an outlier for a few reasons. In order to to even test this config, with an L1 Cache Size of 1024KB and Block Size of 512KB, I had to cut the L1 Associativity from 4 to 2. When we do so, we see an L1 Hit Rate of 92.50%. This number is above my expected absolute cap of 87.50% for L1 Hit Rate. I believe this cap due to 40 unique instructions in a set of 320 total instructions, requiring 40 compulsory misses before a hit (87.50%). This number, 92.50%, demonstrates fewer than 40 compulsory misses.
+Further increases in ins_block and super_ins_block let more instructions in per Block, leading to a higher number of spatially local hits.
 
-If we know each instruction is 32KB, we can determine that 16 instructions fit in each 512KB block. To avoid compulsory misses, this config must be utilizing spatial locality.The following chart gives a visual to what's happening. One compulsory miss per 16 instructions, and with 40 instructions, we're seeing 3 compulsory misses on the first pass, then 3 conflict misses on each remaining pass. 8 total passes, means 24 misses, which exactly matches our observed behavior.
+##### Notable:
+###### ludi_block.txt
+This config file is an outlier for a few reasons. In order to even test this config, with an L1 Cache Size of 1024 bytes and Block Size of 512 bytes, I had to cut the L1 Associativity from 4 to 2. The introduction of a second variable adjustment lets us see how double adjustment improves AMAT to 2.38 Cycles. 
 
-|Instruction | Result | Set |
-|------|------|---| 
-| 1 |	Miss	| 0 | 
-| 2 |	Hit	| 0 | 
-| 3 |	Hit	| 0 | 
-| ... |	...	| ... |
-| 17 |	Miss	| 1 |  
-| 17 |	Hit	| 1 |  
-| 17 |	Hit	| 1 |  
-| ... |	...	| ... |
-| 33 |	Miss	| 0 |  
-| 34 |	Hit	| 0 |  
-| 35 |	Hit	| 0 |  
+To understand why, we need to understand this cache state:
+- ludi_block: **L1 Size: 1024 | Assoc: 2 | L1 Block: 512**
+
+$$ NumSets = \frac{1024}{2 \times 512} $$
+$$ NumSets = 1 $$
+
+So we have 1 set with 2 ways, each Way having 1 512 Block that holds 16 Instructions. When running:
+- 1st pass:
+  1. Instruction 1 compulsory misses, Block 1 loads, Instructions 2-16 Hit.
+  2. Instruction 17 compulsory misses, Block 2 loads, Instructions 18-32 Hit. 
+  3. Instruction 33 compulsory misses, Block 3 evicts Block 1, Instructions 34-40 Hit.
+- 2nd pass:
+  1. Instruction 1 conflict misses, Block 1 evicts Block 2, 2-16 Hit.
+  2. Instruction 17 conflict misses, Block 2 evicts Block 3, 18-32 Hit.
+  3. Instruction 33 conflict misses, Block 3 evicts Block 1, 34-40 Hit.
+
+
+We're seeing 3 compulsory misses on the first pass (Instructions 1, 17, and 33 miss), then 3 conflict misses on each remaining pass. 8 total passes, means 24 misses, which exactly matches our observed behavior. Even though we have 40 unique instructions, we are avoiding the expected mandatory 40 compulsory misses utilizing the spatial locality of an increased block size!
