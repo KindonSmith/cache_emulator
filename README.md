@@ -13,7 +13,9 @@ Built as prep for Georgia Tech's OMSCS program, focusing on C++ systems programm
 | 2 | [4-way-set-associative-lru](./4-way-set-associative-lru) | Set-associative ways, LRU replacement |
 | 3 | [configurable-cache-set-associative-lru](./configurable-cache-set-associative-lru) | CLI runtime configuration |
 | 4 | [write-policies](./write-policies) | Write-back / write-through + write-allocate / no-write-allocate policies, dirty bit tracking |
-| 5 | [two-level-amat](./two-level-amat) | AMAT analysis on a two-level cache. |
+| 5 | [two-level-amat](./two-level-amat) | Two-level (L1/L2) AMAT simulator with an in-depth empirical analysis of cache size, write policy, associativity, and block size effects. |
+
+> **Highlight:** [two-level-amat](./two-level-amat/README.md) has the most in-depth write-up in this series — it walks through cache size, write policy, associativity, and block size experiments, deriving expected hit rates by hand and validating them against the simulator's actual output.
 
 ### Prerequisites
 - g++ / GCC
