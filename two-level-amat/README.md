@@ -75,7 +75,7 @@ R 0x1040
 
 ## AMAT Formula
 
-$$AMAT = HitTime_{L1} + MissRate_{L1} \times (HitTime_{L2} + MissRate_{L2} \times MemoryAccessTime)$$
+$$ AMAT = HitTime_{L1} + MissRate_{L1} \times (HitTime_{L2} + MissRate_{L2} \times MemoryAccessTime) $$
 
 
 
@@ -84,24 +84,24 @@ $$HitRate = \frac{UniqueInstructions_{count} \times (Passes_{total} - 1)}{Unique
 
 
 ## Cache Analysis
-Emulating a cache in C++ gives us a good baseline to see how modifications to a Cache change performance. Though we're only measuring the Average Memory Access Time (AMAT), we can establish some ideas about how to optimize a cache's performance across multiple working sets. We will be establishing a 'benchmark' for this 2-level cache emulator.
+Emulating a cache in C++ gives us a good baseline to see how modifications to a Cache change performance. Though we're only measuring the Average Memory Access Time (AMAT), we can establish ideas to optimize a cache performance. We will be establishing a 'benchmark' for this 2-level cache emulator focusing on a sequential working set of instructions.
 
 This emulator supports the following configurable traits. I've also included some analogous descriptors comparing these modifications to a bookshelf. The values we will be looking at are as follows:
 - Cache Size *(The size of the bookshelf)*
-- Associativity *(The number of slots on a shelf)*
-- Block Size *(The size of the slot a book will fit in)*
+- Block Size *(A box that holds books)*
+- Associativity *(The number of boxes on a shelf)*
 - Write Hit Policy *(If put a book into the shelf, what do we do if it's already there?)*
 - Write Miss Policy *(If we put a book into the shelf, what do we do if it's not there?)*
 
 These can be configured on a per-cache-level basis. An important absence in the above is the number of sets, analogous to the number of shelves in a bookshelf. This is because the number of sets is derived, not configured, with the following formula:
-$$NumSets = \frac{CacheSize}{BlockSize \times Associativity} $$
+$$ NumSets = \frac{CacheSize}{BlockSize \times Associativity} $$
 
 ### Key Findings:
-- Cache size only improves AMAT once it exceeds the working set's footprint; once a level is big enough to hold the whole working set, further size increases give no additional benefit (see: quadrupling a track doesn't make you run a faster 100m).
-- Raw capacity isn't the whole story: the *derived* number of sets determines whether a working set actually spreads across the cache. A cache can have enough total bytes to hold a working set and still thrash if too few sets exist for the access pattern.
-- Write policy matters most at L1. A No-Write-Allocate (NWA) policy at L1 caps the achievable hit rate at the read-only fraction of accesses in a mixed read/write workload; L1 should be Write-Allocate (WA) unless writes are known to be non-reused.
-- Associativity isn't automatically better. For this sequential/looping access pattern, lower associativity (more sets) outperformed higher associativity (fewer sets, more ways), since more sets reduced aliasing/conflict misses.
-- Increasing block size can push the measured hit rate *above* the naive "40 compulsory misses" theoretical floor. Larger blocks coalesce multiple sequential addresses into a single fetch, converting what would be compulsory misses into spatial-locality hits.
+- Cache size only improves AMAT once it exceeds the working set's footprint; once a level is big enough to hold the whole working set, further size increases give no additional benefit (i.e. quadrupling a track doesn't make you run a faster 100m).
+- The *derived* number of sets determines whether a working set actually spreads across the cache. A cache can have enough total bytes to hold a working set and still thrash if too few sets exist for the access pattern. (i.e. if a bookshelf is sorted alphabetically, it doesn't matter that we have an empty slot for the letter "B" if none of the books start with "B").
+- Write policy matters most at L1. A No-Write-Allocate (NWA) policy at L1 caps the achievable hit rate in a mixed read/write workload; L1 should be Write-Allocate (WA) unless writes are known to be one-offs. (i.e. if the book we need isn't available quickly, we should make it available quickly for the future).
+- Associativity isn't automatically better. For this sequential/looping access pattern, lower associativity (more sets) outperformed higher associativity (fewer sets, more ways), since more sets reduced aliasing/conflict misses. 
+- Increasing block size can push the measured hit rate *above* the naive "40 compulsory misses" theoretical floor in this working set of 40 unique instructions. Larger blocks combine multiple sequential addresses into a single fetch, converting compulsory misses into spatially local hits. 
 
 #### Cache Size Changes on Sequential Working set
 | Config | Trace | L1 Hit Rate | L2 Hit Rate | AMAT |
