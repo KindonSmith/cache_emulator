@@ -68,7 +68,7 @@ Cache generateCache(string configString){
 }
 
 string getFilePath(char* inputFileName){
-  return "input/" + (string)inputFileName;
+  return (string)inputFileName;
 }
 
 void processAddressWithPolicy(string addressWithPolicy, Cache &cache){
